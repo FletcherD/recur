@@ -30,15 +30,15 @@ public class Parameters {
         width = 500;
         height = 500;
         pixelNum = width*height;
-        rotateAngle = Math.PI / 6.0;
-        scaleFactor = 1.01;
+        rotateAngle = 2.0/5.0 * Math.PI;
+        scaleFactor = 0.999;
         matrixSize = 5;
-        blurRadius = 0.6;
-        unsharpRadius = 1.4;
-        unsharpWeight = 1.0;
+        blurRadius = 0.8;
+        unsharpRadius = 1.2;
+        unsharpWeight = 0.8;
         colorContrast = new double[]{1.0, 1.0, 1.0};
-        brightness = 0.0;
+        brightness = 0.1;
         noiseOn = true;
-        noiseWeight = 0.02;
+        noiseWeight = 0.1;
     }
 }

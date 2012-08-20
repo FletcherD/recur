@@ -1,8 +1,10 @@
 //NOISE_DEFINE
 __constant float2 windowCenter = {(float)WIDTH / 2.0, (float)HEIGHT / 2.0};
 __constant float4 centerColor = {(255.0/2.0), (255.0/2.0), (255.0/2.0), 0.0};
-__constant float4 borderColor = {0.0, 0.0, 0.0, 0.0};
-__constant float4 colorTransform = { 1.0, 1.0, 1.0, 0.0 };
+__constant float4 borderColor = {1.0, 5.0, 5.0, 0.0};
+__constant float4 colorTransform[] = { {0.9, 0.05, 0.05, 0.0},
+                                       {0.05, 0.9, 0.05, 0.0},
+                                       {0.05, 0.05, 0.9, 0.0} };
 
 float4 colorToFloat4(uint color)
 {
@@ -25,7 +27,7 @@ int float4ToColor(float4 color)
 float4 adjustColor(float4 color, uint randomInt)
 {
     color = ((color - centerColor)) ;
-    color *= colorTransform;
+    color = (color.x * colorTransform[0]) + (color.y * colorTransform[1]) + (color.z * colorTransform[2]);
     #ifdef NOISE
         float4 noise = colorToFloat4(randomInt);
     	color += BRIGHTNESS + centerColor + (noise * NOISEPARAM);
@@ -70,12 +72,22 @@ kernel void iterate(global const float4 *in, global float4 *out, global const in
     unsigned int matrixIdx = xid * MSIZE * MSIZE;
     for(int m = 0; m < MSIZE; m++) {
         int x = matrixPos.x + m;
-        if(x < 0 || x > WIDTH-1) { continue; }
+        if(x < 0 || x > WIDTH-1)
+        {
+            for(int n = 0; n < MSIZE; n++) {
+                float matrixEntry = blurMatrices[matrixIdx+(n*MSIZE)+m];
+                color += borderColor * matrixEntry;
+            }
+            continue;
+        }
         for(int n = 0; n < MSIZE; n++) {
             int y = matrixPos.y + n;
-            if(y < 0 || y > HEIGHT-1) { continue; }
-            int newIdx = y * WIDTH + x;
             float matrixEntry = blurMatrices[matrixIdx+(n*MSIZE)+m];
+            if(y < 0 || y > HEIGHT-1) {
+                color += borderColor * matrixEntry;
+                continue;
+            }
+            int newIdx = y * WIDTH + x;
             color += in[newIdx] * matrixEntry;
         }
     }
@@ -109,6 +121,7 @@ kernel void createBlurMatrices(global float *blurMatrices, global int2 *position
     float yPos = (float)(xid/WIDTH) - YCENT;
     float xPos = (oldxPos*rMatrix[1]) - (yPos*rMatrix[0]) + XCENT;
           yPos = (oldxPos*rMatrix[0]) + (yPos*rMatrix[1]) + YCENT;
+    float scale = hypot(rMatrix[0], rMatrix[1]);
 
     if(xPos >= -(MSIZE) && xPos < WIDTH+(MSIZE) && yPos >= -(MSIZE) && yPos < HEIGHT+(MSIZE))
     {
@@ -127,6 +140,7 @@ kernel void createBlurMatrices(global float *blurMatrices, global int2 *position
                 sum += entry;
             }
         }
+        sum /= scale;
         for(int m = 0; m < MSIZE; m++) {
             for(int n = 0; n < MSIZE; n++) {
                 blurMatrices[matrixIdx+(n*MSIZE)+m] /= sum;

@@ -134,7 +134,6 @@ public class Blur {
             System.out.println("Failed to initialize OpenCL.");
             System.exit(0);
         }
-        flipBuffers();
     }
 
     /**
@@ -146,7 +145,7 @@ public class Blur {
 
         while (!Display.isCloseRequested()) {
 
-            glClear(GL_COLOR_BUFFER_BIT);
+            //glClear(GL_COLOR_BUFFER_BIT);
 
             GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, PBids[imageIndex]);
             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, parameters.width, parameters.height, GL_RGBA, GL_UNSIGNED_BYTE, (long) 0);
@@ -158,8 +157,6 @@ public class Blur {
             glTexCoord2f(1.0f, 1.0f);   glVertex2f(1.0f, 1.0f);
             glTexCoord2f(0.0f, 1.0f);   glVertex2f(0.0f, 1.0f);
             glEnd();
-
-            GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, 0);
 
             Display.update();
             if (startTime > System.currentTimeMillis()) {
@@ -177,9 +174,9 @@ public class Blur {
                 flipBuffers();
             }
             if(Mouse.isButtonDown(1) && !mouseStatus[1]) {
-
-                printMatrix(Mouse.getX(), Mouse.getY());
-                printPosition(Mouse.getX(), Mouse.getY());
+                int y = parameters.height - Mouse.getY();
+                printMatrix(Mouse.getX(), y);
+                printPosition(Mouse.getX(), y);
             }
             if(Keyboard.isKeyDown(Keyboard.KEY_SPACE) && !keyStatus) {
             	runToggle = !runToggle;

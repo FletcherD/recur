@@ -106,9 +106,9 @@ public class CLRunner {
     public void buildKernel() throws Exception {
         IntBuffer err = BufferUtils.createIntBuffer(1);
         String source;
-        String sourceDir = "//home//fletcher//Documents//Blur//clCode";
+        String sourceDir = "C:\\Users\\fdostie\\Documents\\Blur\\clCode";
         try {
-            source = readKernelSource(sourceDir + "//kernel.cl");
+            source = readKernelSource(sourceDir + "\\kernel.cl");
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Failed to read kernel file.");
@@ -219,7 +219,6 @@ public class CLRunner {
     }
 
     public void calculateBlurMatrices() {
-        clFinish(iterateQueue);
         IntBuffer err = BufferUtils.createIntBuffer(1);
         CLKernel calcBlurKernel = clCreateKernel(program, "createBlurMatrices", err);
         Util.checkCLError(err.get(0));
@@ -230,9 +229,9 @@ public class CLRunner {
         calcBlurKernel.setArg(3, blurStd);
         Util.checkCLError(clEnqueueNDRangeKernel(iterateQueue, calcBlurKernel, 1, null, kernelPixelWorkSize, null, null, null));
         clFinish(iterateQueue);
-        clEnqueueCopyBuffer(iterateQueue, blurMatrixTemp, blurMatrix, 0, 0, parameters.pixelNum * parameters.matrixSize * parameters.matrixSize, null, null);
-        clFinish(iterateQueue);
+        Util.checkCLError(clEnqueueCopyBuffer(iterateQueue, blurMatrixTemp, blurMatrix, 0, 0, parameters.pixelNum * parameters.matrixSize * parameters.matrixSize*4, null, null));
         clReleaseKernel(calcBlurKernel);
+        clFinish(iterateQueue);
     }
 
     String readKernelSource(String filename) throws Exception {
