@@ -1,10 +1,8 @@
 //NOISE_DEFINE
 __constant float2 windowCenter = {(float)WIDTH / 2.0, (float)HEIGHT / 2.0};
-__constant float4 centerColor = {(255.0/2.0), (255.0/2.0), (255.0/2.0), (255.0/2.0)};
+__constant float4 centerColor = {(255.0/2.0), (255.0/2.0), (255.0/2.0), 0.0};
 __constant float4 borderColor = {0.0, 0.0, 0.0, 0.0};
-__constant float4 colorTransform[] = {	{0.9, 0.05, 0.05, 0.0},
-										{0.05, 0.9, 0.05, 0.0},
-										{0.05, 0.05, 0.9, 0.0} };
+__constant float4 colorTransform = { 1.0, 1.0, 1.0, 0.0 };
 
 float4 colorToFloat4(int color)
 {
@@ -27,7 +25,7 @@ int float4ToColor(float4 color)
 float4 adjustColor(float4 color, uint randomInt)
 {
     color = ((color - centerColor)) ;
-    color = (color.x * colorTransform[0]) + (color.y * colorTransform[1]) + (color.z * colorTransform[2]);
+    color *= colorTransform;
     #ifdef NOISE
         float4 noise = colorToFloat4(randomInt);
     	color += BRIGHTNESS + centerColor + ((noise - centerColor) * NOISEPARAM);
@@ -36,6 +34,14 @@ float4 adjustColor(float4 color, uint randomInt)
     #endif    
 
     return color;
+}
+
+ulong advanceRandomNumber(ulong x)
+{
+    x ^= (x << 21);
+    x ^= (x >> 35);
+    x ^= (x << 4);
+    return x;
 }
 
 kernel void unsharpMask(global const float4 *in, global float4 *out, __constant float *unsharpMatrix) {
@@ -55,7 +61,7 @@ kernel void unsharpMask(global const float4 *in, global float4 *out, __constant 
 }
 
 kernel void iterate(global const float4 *in, global float4 *out, global const int2 *positions, 
-					global const float *blurMatrices, __constant uint* randomData, __constant uint* randomPos) {
+					global const float *blurMatrices, __global uint* randomData) {
     unsigned int xid = get_global_id(0);
     int2 matrixPos = positions[xid];
     if(matrixPos.x == 0xFFFF)
@@ -77,7 +83,12 @@ kernel void iterate(global const float4 *in, global float4 *out, global const in
             color += in[newIdx] * matrixEntry;
         }
     }
-    out[xid] = adjustColor(color, randomData[randomPos[0] + xid]);
+    #ifdef NOISE
+        out[xid] = adjustColor(color, randomData[xid]);
+        //randomData[xid] = advanceRandomNumber(randomData[xid]);
+    #else
+        out[xid] = adjustColor(color, 0);
+    #endif
 }
 
 kernel void convertToPixelBuf(global const float4 *in, global int *out) {

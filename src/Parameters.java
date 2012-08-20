@@ -26,8 +26,6 @@ public class Parameters {
     boolean noiseOn;
     double noiseWeight;
 
-    int randomDataSize;
-
     Parameters() {
         width = 500;
         height = 500;
@@ -40,7 +38,7 @@ public class Parameters {
         unsharpWeight = 1.0;
         colorContrast = new double[]{1.0, 1.0, 1.0};
         brightness = 0.0;
-        noiseOn = false;
-        randomDataSize = 2 << 12;
+        noiseOn = true;
+        noiseWeight = 0.05;
     }
 }

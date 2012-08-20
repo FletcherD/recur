@@ -132,8 +132,9 @@ public class Blur {
         } catch (Exception le) {
             le.printStackTrace();
             System.out.println("Failed to initialize OpenCL.");
-            return;
+            System.exit(0);
         }
+        flipBuffers();
     }
 
     /**

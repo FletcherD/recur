@@ -10,6 +10,7 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
+import java.security.SecureRandom;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -55,10 +56,6 @@ public class CLRunner {
     CLMem mPositions;
     
     CLMem randomData;
-    CLMem randomDataPos;
-    long randomSeed = (new Date()).getTime();
-    int randomIdx = 0;
-    LongBuffer randomDataLocal;
     Parameters parameters;
 
     public CLRunner(int[] PBids, Parameters p) throws Exception{
@@ -75,29 +72,26 @@ public class CLRunner {
         pboMem[1] = CL10GL.clCreateFromGLBuffer(context, CL_MEM_WRITE_ONLY, PBids[1], null);
 
         rMatrix = clCreateBuffer(context, CL_MEM_READ_ONLY, BufferUtils.createFloatBuffer(2), null);
-        mPositions = clCreateBuffer(context, CL_MEM_READ_WRITE, BufferUtils.createIntBuffer(parameters.pixelNum*2), null);
+        mPositions = clCreateBuffer(context, CL_MEM_READ_WRITE, BufferUtils.createIntBuffer(parameters.pixelNum * 2), null);
         blurStd = clCreateBuffer(context, CL_MEM_READ_ONLY, BufferUtils.createFloatBuffer(1), null);
         blurMatrix = clCreateBuffer(context, CL_MEM_READ_WRITE, BufferUtils.createFloatBuffer(parameters.matrixSize * parameters.matrixSize * parameters.pixelNum), null);
         unsharpMatrix = clCreateBuffer(context, CL_MEM_READ_ONLY, BufferUtils.createFloatBuffer(parameters.matrixSize * parameters.matrixSize), null);
-        randomData = clCreateBuffer(context, CL_MEM_READ_ONLY, BufferUtils.createLongBuffer(parameters.randomDataSize), null);
-        randomDataPos = clCreateBuffer(context, CL_MEM_READ_ONLY, BufferUtils.createIntBuffer(1), null);
-        generateRandomData();
         FloatBuffer fImage = BufferUtils.createFloatBuffer(parameters.pixelNum * 4);
         Random random = new Random();
         for(int i = 0; i < parameters.pixelNum ; i++) {
         	float value = random.nextFloat() * 255.0f;
-            for(int j = 0; j < 4; j++) { fImage.put(value); }
+            for(int j = 0; j < 4; j++) { fImage.put(127.0f); }
         }
         fImage.rewind();
         floatImage = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, fImage, null);
         intermediateImage = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, fImage, null);
 
-        try {
-            buildKernel();
-        } catch (Exception er) {
-            er.printStackTrace();
-            throw er;
+        if(parameters.noiseOn) {
+            randomData = clCreateBuffer(context, CL_MEM_READ_WRITE, BufferUtils.createLongBuffer(parameters.pixelNum), null);
+            generateRandomData();
         }
+
+        buildKernel();
         setLinearTransform();
         setGaussianBlur();
         setUnsharp();
@@ -148,7 +142,6 @@ public class CLRunner {
         blurKernel.setArg(2, mPositions);
         blurKernel.setArg(3, blurMatrix);
         blurKernel.setArg(4, randomData);
-        blurKernel.setArg(5, randomDataPos);
         convertKernel.setArg(0, floatImage);
         unsharpKernel.setArg(0, intermediateImage);
         unsharpKernel.setArg(1, floatImage);
@@ -252,7 +245,6 @@ public class CLRunner {
         convertKernel.setArg(1, pboMem[index]);
         clEnqueueNDRangeKernel(queue, blurKernel, 1, null, kernel1DGlobalWorkSize, null, null, null);
         clEnqueueNDRangeKernel(queue, convertKernel, 1, null, kernel1DGlobalWorkSize, null, null, null);
-        advanceRandomData();
         clFinish(queue);
         CL10GL.clEnqueueReleaseGLObjects(queue, pboMem[index], null, null);
         clEnqueueNDRangeKernel(queue, unsharpKernel, 1, null, kernel1DGlobalWorkSize, null, null, null);
@@ -260,30 +252,12 @@ public class CLRunner {
     }
     
     public void generateRandomData() {
-    	randomIdx = 0;
-        randomDataLocal = BufferUtils.createLongBuffer(parameters.randomDataSize);
-    	for(int i = 0; i < parameters.randomDataSize; i++) {
-			randomSeed ^= (randomSeed << 21);
-			randomSeed ^= (randomSeed >>> 35);
-			randomSeed ^= (randomSeed << 4);
-			randomDataLocal.put(randomSeed);
+        SecureRandom random = new SecureRandom();
+        LongBuffer randomDataLocal = BufferUtils.createLongBuffer(parameters.pixelNum);
+    	for(int i = 0; i < parameters.pixelNum; i++) {
+			randomDataLocal.put(random.nextLong());
     	}
     	randomDataLocal.rewind();
         Util.checkCLError(clEnqueueWriteBuffer(queue, randomData, 1, 0, randomDataLocal, null, null));
-        IntBuffer rPosBuf = BufferUtils.createIntBuffer(1);
-        rPosBuf.put(randomIdx);
-        Util.checkCLError(clEnqueueWriteBuffer(queue, randomDataPos, 1, 0, rPosBuf, null, null));    	
-    }
-    
-    public void advanceRandomData() {
-    	randomIdx += parameters.pixelNum;
-    	if(randomIdx >= parameters.randomDataSize) {
-    		generateRandomData();
-    	}
-    	else {
-	        IntBuffer rPosBuf = BufferUtils.createIntBuffer(1);
-	        rPosBuf.put(randomIdx);
-	        Util.checkCLError(clEnqueueWriteBuffer(queue, randomDataPos, 1, 0, rPosBuf, null, null));     
-    	}
     }
 }
