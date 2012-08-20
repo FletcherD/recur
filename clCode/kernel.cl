@@ -53,7 +53,7 @@ kernel void unsharpMask(global const float4 *in, global float4 *out, __constant 
 }
 
 kernel void iterate(global const float4 *in, global float4 *out, global const int2 *positions, 
-					global const float *blurMatrices, __global uint* randomData) {
+					global const float *blurMatrices, global uint* randomData) {
     unsigned int xid = get_global_id(0);
     int2 matrixPos = positions[xid];
     if(matrixPos.x == 0xFFFF)

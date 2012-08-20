@@ -79,7 +79,7 @@ public class CLRunner {
         rMatrix = clCreateBuffer(context, CL_MEM_READ_ONLY, BufferUtils.createFloatBuffer(2), null);
         mPositions = clCreateBuffer(context, CL_MEM_READ_WRITE, BufferUtils.createIntBuffer(parameters.pixelNum * 2), null);
         blurStd = clCreateBuffer(context, CL_MEM_READ_ONLY, BufferUtils.createFloatBuffer(1), null);
-        blurMatrix = clCreateBuffer(context, CL_MEM_READ_WRITE, BufferUtils.createFloatBuffer(parameters.matrixSize * parameters.matrixSize * parameters.pixelNum), null);
+        blurMatrix = clCreateBuffer(context, CL_MEM_READ_ONLY, BufferUtils.createFloatBuffer(parameters.matrixSize * parameters.matrixSize * parameters.pixelNum), null);
         unsharpMatrix = clCreateBuffer(context, CL_MEM_READ_ONLY, BufferUtils.createFloatBuffer(parameters.matrixSize * parameters.matrixSize), null);
         FloatBuffer fImage = BufferUtils.createFloatBuffer(parameters.pixelNum * 4);
         Random random = new Random();
@@ -223,11 +223,14 @@ public class CLRunner {
         IntBuffer err = BufferUtils.createIntBuffer(1);
         CLKernel calcBlurKernel = clCreateKernel(program, "createBlurMatrices", err);
         Util.checkCLError(err.get(0));
-        calcBlurKernel.setArg(0, blurMatrix);
+        CLMem blurMatrixTemp = clCreateBuffer(context, CL_MEM_WRITE_ONLY, BufferUtils.createFloatBuffer(parameters.matrixSize * parameters.matrixSize * parameters.pixelNum), null);
+        calcBlurKernel.setArg(0, blurMatrixTemp);
         calcBlurKernel.setArg(1, mPositions);
         calcBlurKernel.setArg(2, rMatrix);
         calcBlurKernel.setArg(3, blurStd);
         Util.checkCLError(clEnqueueNDRangeKernel(iterateQueue, calcBlurKernel, 1, null, kernelPixelWorkSize, null, null, null));
+        clFinish(iterateQueue);
+        clEnqueueCopyBuffer(iterateQueue, blurMatrixTemp, blurMatrix, 0, 0, parameters.pixelNum * parameters.matrixSize * parameters.matrixSize, null, null);
         clFinish(iterateQueue);
         clReleaseKernel(calcBlurKernel);
     }
