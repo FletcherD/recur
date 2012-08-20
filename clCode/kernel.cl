@@ -4,15 +4,15 @@ __constant float4 centerColor = {(255.0/2.0), (255.0/2.0), (255.0/2.0), 0.0};
 __constant float4 borderColor = {0.0, 0.0, 0.0, 0.0};
 __constant float4 colorTransform = { 1.0, 1.0, 1.0, 0.0 };
 
-float4 colorToFloat4(int color)
+float4 colorToFloat4(uint color)
 {
-    uchar4 colorC = color;
     float4 r;
-    r.x = (float)(color&0x0000FF);
-    r.y = (float)((color&0x00FF00)>>8);
-    r.z = (float)((color&0xFF0000)>>16);
+    r.x = (float)(char)(color&0x0000FF);
+    r.y = (float)(char)((color&0x00FF00)>>8);
+    r.z = (float)(char)((color&0xFF0000)>>16);
     return r;
 }
+
 int float4ToColor(float4 color)
 {
     uchar4 r;
@@ -28,20 +28,12 @@ float4 adjustColor(float4 color, uint randomInt)
     color *= colorTransform;
     #ifdef NOISE
         float4 noise = colorToFloat4(randomInt);
-    	color += BRIGHTNESS + centerColor + ((noise - centerColor) * NOISEPARAM);
+    	color += BRIGHTNESS + centerColor + (noise * NOISEPARAM);
     #else
     	color += BRIGHTNESS + centerColor;
     #endif    
 
     return color;
-}
-
-ulong advanceRandomNumber(ulong x)
-{
-    x ^= (x << 21);
-    x ^= (x >> 35);
-    x ^= (x << 4);
-    return x;
 }
 
 kernel void unsharpMask(global const float4 *in, global float4 *out, __constant float *unsharpMatrix) {
@@ -66,7 +58,11 @@ kernel void iterate(global const float4 *in, global float4 *out, global const in
     int2 matrixPos = positions[xid];
     if(matrixPos.x == 0xFFFF)
     {
-        out[xid] = borderColor;
+        #ifdef NOISE
+            out[xid] = borderColor + (colorToFloat4(randomData[xid])) * NOISEPARAM;
+        #else
+            out[xid] = borderColor;
+        #endif
         return;
     }
 
@@ -85,10 +81,18 @@ kernel void iterate(global const float4 *in, global float4 *out, global const in
     }
     #ifdef NOISE
         out[xid] = adjustColor(color, randomData[xid]);
-        //randomData[xid] = advanceRandomNumber(randomData[xid]);
     #else
         out[xid] = adjustColor(color, 0);
     #endif
+}
+
+kernel void advanceRandomNumbers(global ulong *random) {
+    uint xid = get_global_id(0);
+    ulong x = random[xid];
+    x ^= (x << 21);
+    x ^= (x >> 35);
+    x ^= (x << 4);
+    random[xid] = x;
 }
 
 kernel void convertToPixelBuf(global const float4 *in, global int *out) {
