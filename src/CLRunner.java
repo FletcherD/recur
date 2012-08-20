@@ -84,7 +84,7 @@ public class CLRunner {
         FloatBuffer fImage = BufferUtils.createFloatBuffer(parameters.pixelNum * 4);
         Random random = new Random();
         for(int i = 0; i < parameters.pixelNum ; i++) {
-        	float value = random.nextFloat() * 255.0f;
+        	float value = random.nextFloat();
             for(int j = 0; j < 4; j++) { fImage.put(value); }
         }
         fImage.rewind();

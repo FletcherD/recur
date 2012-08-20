@@ -31,14 +31,14 @@ public class Parameters {
         height = 500;
         pixelNum = width*height;
         rotateAngle = 2.0/5.0 * Math.PI;
-        scaleFactor = 0.999;
+        scaleFactor = 1.0;
         matrixSize = 5;
         blurRadius = 0.8;
         unsharpRadius = 1.2;
         unsharpWeight = 0.8;
         colorContrast = new double[]{1.0, 1.0, 1.0};
-        brightness = 0.1;
+        brightness = 0.0;
         noiseOn = true;
-        noiseWeight = 0.1;
+        noiseWeight = 0.01;
     }
 }

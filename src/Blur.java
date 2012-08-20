@@ -123,8 +123,8 @@ public class Blur {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-        IntBuffer data = BufferUtils.createIntBuffer(parameters.width * parameters.height);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, parameters.width, parameters.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        FloatBuffer data = BufferUtils.createFloatBuffer(parameters.width * parameters.height * 4);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, parameters.width, parameters.height, 0, GL_RGBA, GL_FLOAT, data);
         setupBuffers();
         glBindTexture(GL_TEXTURE_2D, textureID);
         try {
@@ -148,7 +148,7 @@ public class Blur {
             //glClear(GL_COLOR_BUFFER_BIT);
 
             GL15.glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, PBids[imageIndex]);
-            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, parameters.width, parameters.height, GL_RGBA, GL_UNSIGNED_BYTE, (long) 0);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, parameters.width, parameters.height, 0, GL_RGBA, GL_FLOAT, (long) 0);
 
             glColor4f(1, 1, 1, 1);
             glBegin(GL_QUADS);
@@ -227,7 +227,7 @@ public class Blur {
         GL15.glGenBuffers(intBuffer);
         PBids[0] = intBuffer.get(0);
         PBids[1] = intBuffer.get(1);
-        IntBuffer data = BufferUtils.createIntBuffer(parameters.pixelNum);
+        FloatBuffer data = BufferUtils.createFloatBuffer(parameters.pixelNum * 4);
 
         GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, PBids[0]);
         GL15.glBufferData(GL15.GL_ARRAY_BUFFER, data, GL15.GL_DYNAMIC_DRAW);
