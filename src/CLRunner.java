@@ -6,6 +6,7 @@ import org.lwjgl.PointerBuffer;
 import org.lwjgl.opencl.CLProgram;
 import org.lwjgl.opencl.CLKernel;
 
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -21,6 +22,8 @@ import org.lwjgl.opencl.CLDevice;
 import org.lwjgl.opencl.CLPlatform;
 import org.lwjgl.opencl.CL10GL;
 import org.lwjgl.opengl.Display;
+
+import javax.annotation.Resources;
 
 import static org.lwjgl.opencl.CL10.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -106,9 +109,8 @@ public class CLRunner {
     public void buildKernel() throws Exception {
         IntBuffer err = BufferUtils.createIntBuffer(1);
         String source;
-        String sourceDir = "C:\\Users\\fdostie\\Documents\\Blur\\clCode";
         try {
-            source = readKernelSource(sourceDir + "\\kernel.cl");
+            source = readKernelSource("/clCode/kernel.cl");
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Failed to read kernel file.");
@@ -118,7 +120,6 @@ public class CLRunner {
         source = source.replaceAll("HEIGHT", Integer.toString(parameters.height));
         source = source.replaceAll("MSIZE", Integer.toString(parameters.matrixSize));
         source = source.replaceAll("BRIGHTNESS", Double.toString(parameters.brightness));
-        source = source.replaceAll("SOURCEDIR", sourceDir);
         if(parameters.noiseOn) {
             source = source.replaceAll("NOISEPARAM", Double.toString(parameters.noiseWeight));
             source = source.replaceAll("//NOISE_DEFINE", "#define NOISE");
@@ -235,12 +236,11 @@ public class CLRunner {
     }
 
     String readKernelSource(String filename) throws Exception {
-        BufferedReader in = new BufferedReader(new FileReader(filename));
-        String r = "";
-        while (in.ready()) {
-            r += in.readLine() + "\n";
-        }
-        in.close();
+        URL url = this.getClass().getResource(filename);
+        BufferedInputStream in = new BufferedInputStream(url.openStream());
+        byte[] buffer = new byte[in.available()];
+        in.read(buffer);
+        String r = new String(buffer);
         return r;
     }
 
@@ -250,21 +250,18 @@ public class CLRunner {
         return buf;
     }
 
-    public void flipBuffers(int index) {
+    public void flipBuffers(int flipInto) {
         clEnqueueNDRangeKernel(iterateQueue, blurKernel, 1, null, kernelPixelWorkSize, null, null, null);
         clEnqueueNDRangeKernel(iterateQueue, unsharpKernel, 1, null, kernelPixelWorkSize, null, null, null);
-        CL10GL.clEnqueueAcquireGLObjects(convertQueue, pboMem[index], null, null);
+        CL10GL.clEnqueueAcquireGLObjects(convertQueue, pboMem[flipInto], null, null);
+        clEnqueueCopyBuffer(convertQueue, floatImage, pboMem[flipInto], 0, 0, 4*4*kernelPixelWorkSize.get(0), null, null);
         clFinish(convertQueue);
-        convertKernel.setArg(1, pboMem[index]);
-        clEnqueueNDRangeKernel(convertQueue, convertKernel, 1, null, kernelPixelWorkSize, null, null, null);
         if(parameters.noiseOn) {
             clEnqueueNDRangeKernel(randomQueue, randomKernel, 1, null, kernelRandomWorkSize, null, null, null);
         }
         clFinish(convertQueue);
-        CL10GL.clEnqueueReleaseGLObjects(convertQueue, pboMem[index], null, null);
-        clFinish(convertQueue);
+        CL10GL.clEnqueueReleaseGLObjects(convertQueue, pboMem[flipInto], null, null);
         clFinish(iterateQueue);
-        clFinish(randomQueue);
     }
     
     public void generateRandomData() {
