@@ -23,8 +23,6 @@ import org.lwjgl.opencl.CLPlatform;
 import org.lwjgl.opencl.CL10GL;
 import org.lwjgl.opengl.Display;
 
-import javax.annotation.Resources;
-
 import static org.lwjgl.opencl.CL10.*;
 import static org.lwjgl.opengl.GL11.*;
 
@@ -56,10 +54,12 @@ public class CLRunner {
     CLMem intermediateImage;
     
     CLMem rMatrix;
+    CLMem mPositions;
     CLMem blurMatrix;
     CLMem blurStd;
     CLMem unsharpMatrix;
-    CLMem mPositions;
+    CLMem gaussianStd;
+    CLMem gaussianLookup;
     
     CLMem randomData;
     Parameters parameters;
@@ -82,12 +82,14 @@ public class CLRunner {
         rMatrix = clCreateBuffer(context, CL_MEM_READ_ONLY, BufferUtils.createFloatBuffer(2), null);
         mPositions = clCreateBuffer(context, CL_MEM_READ_WRITE, BufferUtils.createIntBuffer(parameters.pixelNum * 2), null);
         blurStd = clCreateBuffer(context, CL_MEM_READ_ONLY, BufferUtils.createFloatBuffer(1), null);
+        gaussianStd = clCreateBuffer(context, CL_MEM_READ_ONLY, BufferUtils.createFloatBuffer(1), null);
         blurMatrix = clCreateBuffer(context, CL_MEM_READ_ONLY, BufferUtils.createFloatBuffer(parameters.matrixSize * parameters.matrixSize * parameters.pixelNum), null);
         unsharpMatrix = clCreateBuffer(context, CL_MEM_READ_ONLY, BufferUtils.createFloatBuffer(parameters.matrixSize * parameters.matrixSize), null);
+        gaussianLookup = clCreateBuffer(context, CL_MEM_READ_ONLY, BufferUtils.createFloatBuffer(1024), null);
         FloatBuffer fImage = BufferUtils.createFloatBuffer(parameters.pixelNum * 4);
         Random random = new Random();
         for(int i = 0; i < parameters.pixelNum ; i++) {
-        	float value = random.nextFloat();
+        	float value = 0.5f;
             for(int j = 0; j < 4; j++) { fImage.put(value); }
         }
         fImage.rewind();
@@ -103,7 +105,9 @@ public class CLRunner {
         setLinearTransform();
         setGaussianBlur();
         setUnsharp();
+        setNoiseStdev();
         calculateBlurMatrices();
+        calculateGaussianLookup();
     }
 
     public void buildKernel() throws Exception {
@@ -121,7 +125,6 @@ public class CLRunner {
         source = source.replaceAll("MSIZE", Integer.toString(parameters.matrixSize));
         source = source.replaceAll("BRIGHTNESS", Double.toString(parameters.brightness));
         if(parameters.noiseOn) {
-            source = source.replaceAll("NOISEPARAM", Double.toString(parameters.noiseWeight));
             source = source.replaceAll("//NOISE_DEFINE", "#define NOISE");
         }
 
@@ -149,6 +152,7 @@ public class CLRunner {
         blurKernel.setArg(2, mPositions);
         blurKernel.setArg(3, blurMatrix);
         blurKernel.setArg(4, randomData);
+        blurKernel.setArg(5, gaussianLookup);
         convertKernel.setArg(0, floatImage);
         unsharpKernel.setArg(0, intermediateImage);
         unsharpKernel.setArg(1, floatImage);
@@ -185,6 +189,13 @@ public class CLRunner {
         Util.checkCLError(clEnqueueWriteBuffer(iterateQueue, blurStd, 1, 0, bStd, null, null));
     }
 
+    public void setNoiseStdev() {
+        FloatBuffer nStd = BufferUtils.createFloatBuffer(1);
+        nStd.put((float)(parameters.noiseStd));
+        nStd.rewind();
+        Util.checkCLError(clEnqueueWriteBuffer(iterateQueue, gaussianStd, 1, 0, nStd, null, null));
+    }
+
     public void setUnsharp() {
         FloatBuffer unsharp = BufferUtils.createFloatBuffer(parameters.matrixSize * parameters.matrixSize);
         double sum = 0;
@@ -219,6 +230,15 @@ public class CLRunner {
         return bMatrix;
     }
 
+    public float[] getGaussianLookup() {
+        FloatBuffer mBuf = BufferUtils.createFloatBuffer(1024);
+        clEnqueueReadBuffer(iterateQueue, gaussianLookup, 1, 0, mBuf, null, null);
+        float[] bMatrix = new float[1024];
+        clFinish(iterateQueue);
+        mBuf.get(bMatrix);
+        return bMatrix;
+    }
+
     public void calculateBlurMatrices() {
         IntBuffer err = BufferUtils.createIntBuffer(1);
         CLKernel calcBlurKernel = clCreateKernel(program, "createBlurMatrices", err);
@@ -235,19 +255,28 @@ public class CLRunner {
         clFinish(iterateQueue);
     }
 
+    public void calculateGaussianLookup() {
+        IntBuffer err = BufferUtils.createIntBuffer(1);
+        CLKernel calcGaussianKernel = clCreateKernel(program, "createGaussianLookup", err);
+        Util.checkCLError(err.get(0));
+        CLMem gaussianLookupTemp = clCreateBuffer(context, CL_MEM_WRITE_ONLY, BufferUtils.createFloatBuffer(1024), null);
+        calcGaussianKernel.setArg(0, gaussianLookupTemp);
+        calcGaussianKernel.setArg(1, gaussianStd);
+        PointerBuffer kernelGaussianWorkSize = BufferUtils.createPointerBuffer(1);
+        kernelGaussianWorkSize.put(0, 1024);
+        Util.checkCLError(clEnqueueNDRangeKernel(iterateQueue, calcGaussianKernel, 1, null, kernelGaussianWorkSize, null, null, null));
+        clFinish(iterateQueue);
+        Util.checkCLError(clEnqueueCopyBuffer(iterateQueue, gaussianLookupTemp, gaussianLookup, 0, 0, 1024*4, null, null));
+        clReleaseKernel(calcGaussianKernel);
+        clFinish(iterateQueue);
+    }
+
     String readKernelSource(String filename) throws Exception {
         URL url = this.getClass().getResource(filename);
         BufferedInputStream in = new BufferedInputStream(url.openStream());
         byte[] buffer = new byte[in.available()];
-        in.read(buffer);
-        String r = new String(buffer);
-        return r;
-    }
-
-    static PointerBuffer toPointerBuffer(long[] ints) {
-        PointerBuffer buf = BufferUtils.createPointerBuffer(ints.length).put(ints);
-        buf.rewind();
-        return buf;
+        int err = in.read(buffer);
+        return new String(buffer);
     }
 
     public void flipBuffers(int flipInto) {

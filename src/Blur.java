@@ -169,8 +169,7 @@ public class Blur {
                 fps = 0;
             }
 
-
-            if(runToggle || (Mouse.isButtonDown(0) && mouseStatus[0] == false)) {
+            if(runToggle || (Mouse.isButtonDown(0) && !mouseStatus[0])) {
                 flipBuffers();
             }
             if(Mouse.isButtonDown(1) && !mouseStatus[1]) {

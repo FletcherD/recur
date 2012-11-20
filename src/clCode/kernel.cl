@@ -1,41 +1,62 @@
 //NOISE_DEFINE
 __constant float2 windowCenter = {(float)WIDTH / 2.0, (float)HEIGHT / 2.0};
 __constant float4 centerColor = {0.5, 0.5, 0.5, 0.0};
-__constant float4 borderColor = {0.01, 0.03, 0.03, 0.0};
-__constant float4 colorTransform[] = { {0.9, 0.05, 0.05, 0.0},
-                                       {0.05, 0.9, 0.05, 0.0},
-                                       {0.05, 0.05, 0.9, 0.0} };
+__constant float4 borderColor = {0.05, 0.03, 0.03, 0.0};
+__constant float4 colorTransform[] = { {1.0, 0.0, 0.0, 0.0},
+                                       {0.0, 1.0, 0.0, 0.0},
+                                       {0.0, 0.0, 1.0, 0.0} };
 
-float4 colorToFloat4(uint color)
+__inline__ float erfinv(float x)
+{
+    float w, p;
+    w = -log((1.0f-x)*(1.0f+x));
+    if ( w < 5.000000f ) {
+        w = w - 2.500000f;
+        p =  2.81022636e-08f;
+        p =  3.43273939e-07f + p*w;
+        p =  -3.5233877e-06f + p*w;
+        p = -4.39150654e-06f + p*w;
+        p =   0.00021858087f + p*w;
+        p =  -0.00125372503f + p*w;
+        p =  -0.00417768164f + p*w;
+        p =     0.246640727f + p*w;
+        p =      1.50140941f + p*w;
+    }
+    else {
+        w = sqrt(w) - 3.000000f;
+        p = -0.000200214257f;
+        p =  0.000100950558f + p*w;
+        p =   0.00134934322f + p*w;
+        p =  -0.00367342844f + p*w;
+        p =   0.00573950773f + p*w;
+        p =   -0.0076224613f + p*w;
+        p =   0.00943887047f + p*w;
+        p =      1.00167406f + p*w;
+        p =      2.83297682f + p*w;
+    }
+    return p*x;
+}
+
+float4 randomIntToColor(uint color, __constant float *gaussianLookup)
 {
     float4 r;
-    r.x = (float)(char)(color&0x0000FF) / 255.0;
-    r.y = (float)(char)((color&0x00FF00)>>8) / 255.0;
-    r.z = (float)(char)((color&0xFF0000)>>16) / 255.0;
+    r.x = gaussianLookup[color&(1024-1)];
+    r.y = gaussianLookup[(color>>10)&(1024-1)];
+    r.z = gaussianLookup[(color>>20)&(1024-1)];
     return r;
 }
 
-int float4ToColor(float4 color)
-{
-    uchar4 r;
-    r.x = (uchar)(max(0, min(255, (int)(round(color.x)))));
-    r.y = (uchar)(max(0, min(255, (int)(round(color.y)))));
-    r.z = (uchar)(max(0, min(255, (int)(round(color.z)))));
-    return (int)r;
-}
-
-float4 adjustColor(float4 color, uint randomInt)
+float4 adjustColor(float4 color, float4 randomColor)
 {
     color = ((color - centerColor)) ;
     color = (color.x * colorTransform[0]) + (color.y * colorTransform[1]) + (color.z * colorTransform[2]);
     #ifdef NOISE
-        float4 noise = colorToFloat4(randomInt);
-    	color += BRIGHTNESS + centerColor + (noise * NOISEPARAM);
+    	color += BRIGHTNESS + centerColor + randomColor;
     #else
     	color += BRIGHTNESS + centerColor;
-    #endif    
+    #endif
 
-    return color;
+    return clamp(color, 0.0f, 1.0f);
 }
 
 kernel void unsharpMask(global const float4 *in, global float4 *out, __constant float *unsharpMatrix) {
@@ -55,15 +76,15 @@ kernel void unsharpMask(global const float4 *in, global float4 *out, __constant 
 }
 
 kernel void iterate(global const float4 *in, global float4 *out, global const int2 *positions, 
-					global const float *blurMatrices, global uint* randomData) {
+					global const float *blurMatrices, global uint *randomData, __constant float *gaussianLookup) {
     unsigned int xid = get_global_id(0);
     int2 matrixPos = positions[xid];
     if(matrixPos.x == 0xFFFF)
     {
         #ifdef NOISE
-            out[xid] = borderColor + (colorToFloat4(randomData[xid])) * NOISEPARAM;
+            out[xid] = adjustColor(borderColor, randomIntToColor(randomData[xid], gaussianLookup));
         #else
-            out[xid] = borderColor;
+            out[xid] = adjustColor(borderColor, 0);
         #endif
         return;
     }
@@ -92,7 +113,7 @@ kernel void iterate(global const float4 *in, global float4 *out, global const in
         }
     }
     #ifdef NOISE
-        out[xid] = adjustColor(color, randomData[xid]);
+        out[xid] = adjustColor(color, randomIntToColor(randomData[xid], gaussianLookup));
     #else
         out[xid] = adjustColor(color, 0);
     #endif
@@ -140,7 +161,6 @@ kernel void createBlurMatrices(global float *blurMatrices, global int2 *position
                 sum += entry;
             }
         }
-        sum /= scale;
         for(int m = 0; m < MSIZE; m++) {
             for(int n = 0; n < MSIZE; n++) {
                 blurMatrices[matrixIdx+(n*MSIZE)+m] /= sum;
@@ -151,4 +171,12 @@ kernel void createBlurMatrices(global float *blurMatrices, global int2 *position
     {
         positions[xid].x = 0xFFFF;
     }
+}
+
+kernel void createGaussianLookup(global float *gaussianLookup, __constant float *stdev) {
+    const int N = 1024;
+    const float xLim = 0.990;
+    unsigned int xid = get_global_id(0);
+    float x = -xLim + (2*xLim/((float)(N-1)))*xid;
+    gaussianLookup[xid] = sqrt(2.0f) * stdev[0] * erfinv(x);
 }
