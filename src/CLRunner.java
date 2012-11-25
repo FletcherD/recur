@@ -21,7 +21,7 @@ import org.lwjgl.opencl.CLContext;
 import org.lwjgl.opencl.CLDevice;
 import org.lwjgl.opencl.CLPlatform;
 import org.lwjgl.opencl.CL10GL;
-import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.Drawable;
 
 import static org.lwjgl.opencl.CL10.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -33,7 +33,10 @@ import static org.lwjgl.opengl.GL11.*;
  * Time: 4:47 PM
  * To change this template use File | Settings | File Templates.
  */
-public class CLRunner {
+
+
+public class CLRunner implements Runnable {
+    ImageData imageData;
 
     CLPlatform platform;
     CLContext context;
@@ -63,21 +66,28 @@ public class CLRunner {
     
     CLMem randomData;
     Parameters parameters;
+    Recur.SharedGlData sharedGlData;
 
-    public CLRunner(int[] PBids, Parameters p) throws Exception{
+    public CLRunner(ImageData inImageData, Parameters p, Recur.SharedGlData inShared) {
+        imageData = inImageData;
         parameters = p;
+        sharedGlData = inShared;
+    }
+
+    private void init() throws Exception {
+        Drawable d = sharedGlData.get();
         CL.create();
         platform = CLPlatform.getPlatforms().get(0);
         devices = platform.getDevices(CL_DEVICE_TYPE_GPU);
         IntBuffer err = BufferUtils.createIntBuffer(1);
-        context = CLContext.create(platform, devices, null, Display.getDrawable(), err);
+        context = CLContext.create(platform, devices, null, d, err);
         Util.checkCLError(err.get(0));
         iterateQueue = clCreateCommandQueue(context, devices.get(0), CL_QUEUE_PROFILING_ENABLE, null);
         convertQueue = clCreateCommandQueue(context, devices.get(0), CL_QUEUE_PROFILING_ENABLE, null);
         randomQueue = clCreateCommandQueue(context, devices.get(0), CL_QUEUE_PROFILING_ENABLE, null);
         glFinish();
-        pboMem[0] = CL10GL.clCreateFromGLBuffer(context, CL_MEM_WRITE_ONLY, PBids[0], null);
-        pboMem[1] = CL10GL.clCreateFromGLBuffer(context, CL_MEM_WRITE_ONLY, PBids[1], null);
+        pboMem[0] = CL10GL.clCreateFromGLBuffer(context, CL_MEM_WRITE_ONLY, imageData.getBuffer(0), null);
+        pboMem[1] = CL10GL.clCreateFromGLBuffer(context, CL_MEM_WRITE_ONLY, imageData.getBuffer(1), null);
 
         rMatrix = clCreateBuffer(context, CL_MEM_READ_ONLY, BufferUtils.createFloatBuffer(2), null);
         mPositions = clCreateBuffer(context, CL_MEM_READ_WRITE, BufferUtils.createIntBuffer(parameters.pixelNum * 2), null);
@@ -87,9 +97,8 @@ public class CLRunner {
         unsharpMatrix = clCreateBuffer(context, CL_MEM_READ_ONLY, BufferUtils.createFloatBuffer(parameters.matrixSize * parameters.matrixSize), null);
         gaussianLookup = clCreateBuffer(context, CL_MEM_READ_ONLY, BufferUtils.createFloatBuffer(1024), null);
         FloatBuffer fImage = BufferUtils.createFloatBuffer(parameters.pixelNum * 4);
-        Random random = new Random();
         for(int i = 0; i < parameters.pixelNum ; i++) {
-        	float value = 0.5f;
+            float value = 0.5f;
             for(int j = 0; j < 4; j++) { fImage.put(value); }
         }
         fImage.rewind();
@@ -108,6 +117,49 @@ public class CLRunner {
         setNoiseStdev();
         calculateBlurMatrices();
         calculateGaussianLookup();
+        sharedGlData.release();
+    }
+
+    public void run() {
+        int frames = 0;
+        try{
+            init();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Failed to run OpenCL thread.");
+            return;
+        }
+        long startTime = System.currentTimeMillis();
+        while(true)
+        {
+            flipBuffers();
+            frames++;
+            long timeUsed = System.currentTimeMillis() - startTime;
+            if (timeUsed > 2000) {
+                System.out.println(frames + " frames rendered in " + timeUsed / 1000f + " seconds = "
+                        + (frames / (timeUsed / 1000f)));
+                startTime = System.currentTimeMillis();
+                frames = 0;
+            }
+        }
+    }
+
+    public void flipBuffers() {
+        clEnqueueNDRangeKernel(iterateQueue, blurKernel, 1, null, kernelPixelWorkSize, null, null, null);
+        clEnqueueNDRangeKernel(iterateQueue, unsharpKernel, 1, null, kernelPixelWorkSize, null, null, null);
+        clFinish(iterateQueue);
+        sharedGlData.clAcquire();
+        CL10GL.clEnqueueAcquireGLObjects(iterateQueue, pboMem[imageData.getWorkingFlip()], null, null);
+        clEnqueueCopyBuffer(iterateQueue, floatImage, pboMem[imageData.getWorkingFlip()], 0, 0, 4*4*kernelPixelWorkSize.get(0), null, null);
+        CL10GL.clEnqueueReleaseGLObjects(iterateQueue, pboMem[imageData.getWorkingFlip()], null, null);
+        clFinish(iterateQueue);
+        sharedGlData.release();
+
+        imageData.flipBuffers();
+
+        if(parameters.noiseOn) {
+            clEnqueueNDRangeKernel(randomQueue, randomKernel, 1, null, kernelRandomWorkSize, null, null, null);
+        }
     }
 
     public void buildKernel() throws Exception {
@@ -277,20 +329,6 @@ public class CLRunner {
         byte[] buffer = new byte[in.available()];
         int err = in.read(buffer);
         return new String(buffer);
-    }
-
-    public void flipBuffers(int flipInto) {
-        clEnqueueNDRangeKernel(iterateQueue, blurKernel, 1, null, kernelPixelWorkSize, null, null, null);
-        clEnqueueNDRangeKernel(iterateQueue, unsharpKernel, 1, null, kernelPixelWorkSize, null, null, null);
-        CL10GL.clEnqueueAcquireGLObjects(convertQueue, pboMem[flipInto], null, null);
-        clEnqueueCopyBuffer(convertQueue, floatImage, pboMem[flipInto], 0, 0, 4*4*kernelPixelWorkSize.get(0), null, null);
-        clFinish(convertQueue);
-        if(parameters.noiseOn) {
-            clEnqueueNDRangeKernel(randomQueue, randomKernel, 1, null, kernelRandomWorkSize, null, null, null);
-        }
-        clFinish(convertQueue);
-        CL10GL.clEnqueueReleaseGLObjects(convertQueue, pboMem[flipInto], null, null);
-        clFinish(iterateQueue);
     }
     
     public void generateRandomData() {

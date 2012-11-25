@@ -31,10 +31,10 @@ public class Parameters {
         pixelNum = width*height;
         rotateAngle = 2.0/5.0 * Math.PI;
         scaleFactor = 1.01;
-        matrixSize = 5;
+        matrixSize = 3;
         blurRadius = 0.8;
         unsharpRadius = 1.2;
-        unsharpWeight = 0.8;
+        unsharpWeight = 0.9;
         colorContrast = new double[]{1.0, 1.0, 1.0};
         brightness = 0.0;
         noiseOn = true;

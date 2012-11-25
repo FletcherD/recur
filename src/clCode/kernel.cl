@@ -37,7 +37,7 @@ __inline__ float erfinv(float x)
     return p*x;
 }
 
-float4 randomIntToColor(uint color, __constant float *gaussianLookup)
+float4 randomIntToColor(const uint color, __constant float *gaussianLookup)
 {
     float4 r;
     r.x = gaussianLookup[color&(1024-1)];
@@ -46,9 +46,9 @@ float4 randomIntToColor(uint color, __constant float *gaussianLookup)
     return r;
 }
 
-float4 adjustColor(float4 color, float4 randomColor)
+float4 adjustColor(const float4 colorIn, const float4 randomColor)
 {
-    color = ((color - centerColor)) ;
+    float4 color = ((colorIn - centerColor)) ;
     color = (color.x * colorTransform[0]) + (color.y * colorTransform[1]) + (color.z * colorTransform[2]);
     #ifdef NOISE
     	color += BRIGHTNESS + centerColor + randomColor;
@@ -63,20 +63,21 @@ kernel void unsharpMask(global const float4 *in, global float4 *out, __constant 
     unsigned int xid = get_global_id(0);
     int x = xid%WIDTH;
     int y = xid/WIDTH;
-    float4 color = {0.0, 0.0, 0.0, 0.0};
+    float4 color = {0.0f, 0.0f, 0.0f, 0.0f};
     for(int n = max(0, (MSIZE/2)-y); n < min(MSIZE, HEIGHT-y+(MSIZE/2)); n++) {
         int idx = (y+n-(MSIZE/2)) * WIDTH;
         for(int m = max(0, (MSIZE/2)-x); m < min(MSIZE, WIDTH-x+(MSIZE/2)); m++) {
             int newX = x+m-(MSIZE/2);
             float matrixEntry = unsharpMatrix[(n*MSIZE)+m];
             color += in[idx + newX] * matrixEntry;
+            //color = mad(in[idx+newX], matrixEntry, color);
         }
     }
     out[xid] = color;
 }
 
 kernel void iterate(global const float4 *in, global float4 *out, global const int2 *positions, 
-					global const float *blurMatrices, global uint *randomData, __constant float *gaussianLookup) {
+					global const float *blurMatrices, global const uint *randomData, __constant float *gaussianLookup) {
     unsigned int xid = get_global_id(0);
     int2 matrixPos = positions[xid];
     if(matrixPos.x == 0xFFFF)
