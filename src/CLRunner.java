@@ -12,6 +12,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.io.*;
@@ -177,7 +178,9 @@ public class CLRunner implements Runnable {
         source = source.replaceAll("WIDTH", Integer.toString(parameters.width));
         source = source.replaceAll("HEIGHT", Integer.toString(parameters.height));
         source = source.replaceAll("MSIZE", Integer.toString(parameters.matrixSize));
-        source = source.replaceAll("BRIGHTNESS", Double.toString(parameters.brightness));
+        source = source.replaceAll("BRIGHTNESS", parameters.arrayFormatC(parameters.brightness));
+        source = source.replaceAll("BORDER_COLOR_ORIG", parameters.arrayFormatC(parameters.borderColor));
+        source = source.replaceAll("BORDER_COLOR_GAMMA", parameters.arrayFormatC(parameters.getBorderColorGamma()));
         source = source.replaceAll("GAMMA", Double.toString(parameters.gamma));
         if(parameters.noiseOn) {
             source = source.replaceAll("//NOISE_DEFINE", "#define NOISE");

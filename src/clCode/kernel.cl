@@ -1,8 +1,9 @@
 //NOISE_DEFINE
 __constant float2 windowCenter = {(float)WIDTH / 2.0, (float)HEIGHT / 2.0};
 __constant float4 centerColor = {0.5, 0.5, 0.5, 0.0};
-__constant float4 borderColor = {0.05, 0.03, 0.03, 0.0};
-__constant float4 borderColorGamma = {0.0025, 0.0009, 0.0009, 0.0};
+__constant float4 borderColor = BORDER_COLOR_ORIG;
+__constant float4 borderColorGamma = BORDER_COLOR_GAMMA;
+__constant float4 brightness = BRIGHTNESS;
 __constant float4 colorTransform[] = { {1.0, 0.0, 0.0, 0.0},
                                        {0.0, 1.0, 0.0, 0.0},
                                        {0.0, 0.0, 1.0, 0.0} };
@@ -52,9 +53,9 @@ float4 adjustColor(const float4 colorIn, const float4 randomColor)
     float4 color = ((colorIn - centerColor)) ;
     color = (color.x * colorTransform[0]) + (color.y * colorTransform[1]) + (color.z * colorTransform[2]);
     #ifdef NOISE
-    	color += BRIGHTNESS + centerColor + randomColor;
+    	color += brightness + centerColor + randomColor;
     #else
-    	color += BRIGHTNESS + centerColor;
+    	color += brightness + centerColor;
     #endif
 
     return clamp(color, 0.0f, 1.0f);
