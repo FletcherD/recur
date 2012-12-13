@@ -21,6 +21,7 @@ public class Parameters {
 
     double colorContrast[];
     double brightness;
+    double gamma;
 
     boolean noiseOn;
     double noiseStd;
@@ -30,13 +31,14 @@ public class Parameters {
         height = 500;
         pixelNum = width*height;
         rotateAngle = 2.0/5.0 * Math.PI;
-        scaleFactor = 1.01;
+        scaleFactor = 0.98;
         matrixSize = 3;
         blurRadius = 0.8;
         unsharpRadius = 1.2;
         unsharpWeight = 0.9;
         colorContrast = new double[]{1.0, 1.0, 1.0};
         brightness = 0.0;
+        gamma = 2.0;
         noiseOn = true;
         noiseStd = 0.01;
     }

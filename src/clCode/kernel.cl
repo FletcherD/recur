@@ -2,6 +2,7 @@
 __constant float2 windowCenter = {(float)WIDTH / 2.0, (float)HEIGHT / 2.0};
 __constant float4 centerColor = {0.5, 0.5, 0.5, 0.0};
 __constant float4 borderColor = {0.05, 0.03, 0.03, 0.0};
+__constant float4 borderColorGamma = {0.0025, 0.0009, 0.0009, 0.0};
 __constant float4 colorTransform[] = { {1.0, 0.0, 0.0, 0.0},
                                        {0.0, 1.0, 0.0, 0.0},
                                        {0.0, 0.0, 1.0, 0.0} };
@@ -76,6 +77,15 @@ kernel void unsharpMask(global const float4 *in, global float4 *out, __constant 
     out[xid] = color;
 }
 
+kernel void gammaApply(global float4 *in) {
+    unsigned int xid = get_global_id(0);
+    in[xid] = pow(in[xid], GAMMA);
+}
+
+__inline__ float4 gammaCorrect(const float4 in) {
+    return pow(in, 1.0/GAMMA);
+}
+
 kernel void iterate(global const float4 *in, global float4 *out, global const int2 *positions, 
 					global const float *blurMatrices, global const uint *randomData, __constant float *gaussianLookup) {
     unsigned int xid = get_global_id(0);
@@ -98,7 +108,7 @@ kernel void iterate(global const float4 *in, global float4 *out, global const in
         {
             for(int n = 0; n < MSIZE; n++) {
                 float matrixEntry = blurMatrices[matrixIdx+(n*MSIZE)+m];
-                color += borderColor * matrixEntry;
+                color += borderColorGamma * matrixEntry;
             }
             continue;
         }
@@ -106,13 +116,14 @@ kernel void iterate(global const float4 *in, global float4 *out, global const in
             int y = matrixPos.y + n;
             float matrixEntry = blurMatrices[matrixIdx+(n*MSIZE)+m];
             if(y < 0 || y > HEIGHT-1) {
-                color += borderColor * matrixEntry;
+                color += borderColorGamma * matrixEntry;
                 continue;
             }
             int newIdx = y * WIDTH + x;
             color += in[newIdx] * matrixEntry;
         }
     }
+    color = gammaCorrect(color);
     #ifdef NOISE
         out[xid] = adjustColor(color, randomIntToColor(randomData[xid], gaussianLookup));
     #else
@@ -128,11 +139,6 @@ kernel void advanceRandomNumbers(global ulong *random) {
     x ^= (x << 4);
     random[xid] = x;
 }
-
-kernel void convertToPixelBuf(global const float4 *in, global float4 *out) {
-	unsigned int xid = get_global_id(0);
-	out[xid] = (in[xid]);
-} 
 
 kernel void createBlurMatrices(global float *blurMatrices, global int2 *positions, __constant float *rMatrix, __constant float *blurStd) {
     const float XCENT = WIDTH/2.0;

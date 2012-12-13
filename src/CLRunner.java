@@ -24,6 +24,7 @@ import org.lwjgl.opencl.CL10GL;
 import org.lwjgl.opengl.Drawable;
 
 import static org.lwjgl.opencl.CL10.*;
+import static org.lwjgl.opencl.CL10.clEnqueueNDRangeKernel;
 import static org.lwjgl.opengl.GL11.*;
 
 /**
@@ -46,7 +47,7 @@ public class CLRunner implements Runnable {
     CLProgram program;
     CLKernel blurKernel;
     CLKernel unsharpKernel;
-    CLKernel convertKernel;
+    CLKernel gammaKernel;
     CLKernel randomKernel;
     List<CLDevice> devices;
     PointerBuffer kernelPixelWorkSize = BufferUtils.createPointerBuffer(1);
@@ -145,6 +146,7 @@ public class CLRunner implements Runnable {
     }
 
     public void flipBuffers() {
+        clEnqueueNDRangeKernel(iterateQueue, gammaKernel, 1, null, kernelPixelWorkSize, null, null, null);
         clEnqueueNDRangeKernel(iterateQueue, blurKernel, 1, null, kernelPixelWorkSize, null, null, null);
         clEnqueueNDRangeKernel(iterateQueue, unsharpKernel, 1, null, kernelPixelWorkSize, null, null, null);
         clFinish(iterateQueue);
@@ -176,6 +178,7 @@ public class CLRunner implements Runnable {
         source = source.replaceAll("HEIGHT", Integer.toString(parameters.height));
         source = source.replaceAll("MSIZE", Integer.toString(parameters.matrixSize));
         source = source.replaceAll("BRIGHTNESS", Double.toString(parameters.brightness));
+        source = source.replaceAll("GAMMA", Double.toString(parameters.gamma));
         if(parameters.noiseOn) {
             source = source.replaceAll("//NOISE_DEFINE", "#define NOISE");
         }
@@ -197,7 +200,7 @@ public class CLRunner implements Runnable {
         // sum has to match a kernel method name in the OpenCL source
         blurKernel = clCreateKernel(program, "iterate", null);
         unsharpKernel = clCreateKernel(program, "unsharpMask", null);
-        convertKernel = clCreateKernel(program, "convertToPixelBuf", null);
+        gammaKernel = clCreateKernel(program, "gammaApply", null);
         randomKernel = clCreateKernel(program, "advanceRandomNumbers", null);
         blurKernel.setArg(0, floatImage);
         blurKernel.setArg(1, intermediateImage);
@@ -205,7 +208,7 @@ public class CLRunner implements Runnable {
         blurKernel.setArg(3, blurMatrix);
         blurKernel.setArg(4, randomData);
         blurKernel.setArg(5, gaussianLookup);
-        convertKernel.setArg(0, floatImage);
+        gammaKernel.setArg(0, floatImage);
         unsharpKernel.setArg(0, intermediateImage);
         unsharpKernel.setArg(1, floatImage);
         unsharpKernel.setArg(2, unsharpMatrix);
@@ -216,7 +219,7 @@ public class CLRunner implements Runnable {
 
     public void dispose() {
         clReleaseKernel(blurKernel);
-        clReleaseKernel(convertKernel);
+        clReleaseKernel(gammaKernel);
         clReleaseKernel(unsharpKernel);
         clReleaseKernel(randomKernel);
         clReleaseProgram(program);
