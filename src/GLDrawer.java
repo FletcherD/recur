@@ -23,7 +23,7 @@ import static org.lwjgl.opengl.Util.checkGLError;
     int textureID;
     boolean mouseStatus[] = { false, false };
     boolean keyStatus = false;
-    boolean runToggle = false;
+    boolean runToggle = true;
     Recur.SharedGlData sharedGlData;
 
     Parameters parameters;
@@ -125,7 +125,7 @@ import static org.lwjgl.opengl.Util.checkGLError;
             }
             if(Mouse.isButtonDown(1) && !mouseStatus[1]) {
                 int y = parameters.height - Mouse.getY();
-                //printMatrix(Mouse.getX(), y);
+                printMatrix(Mouse.getX(), y);
                 printPosition(Mouse.getX(), y);
             }
             if(Keyboard.isKeyDown(Keyboard.KEY_SPACE) && !keyStatus) {
@@ -145,19 +145,17 @@ import static org.lwjgl.opengl.Util.checkGLError;
         }
     }
 
-    /*private void printMatrix(int x, int y) {
-        if (bMatrix == null) {
-            bMatrix = clRunner.getMatrices();
-        }
+    private void printMatrix(int x, int y) {
+        float[] bMatrix = parameters.getDebugMatrix();
         int startIdx = (parameters.matrixSize * parameters.matrixSize) * ((y * parameters.width) + x);
         System.out.println(x + ", " + y);
         for (int m = 0; m < parameters.matrixSize; m++) {
             for (int n = 0; n < parameters.matrixSize; n++) {
-                System.out.format("%.3f ", bMatrix[startIdx+(m*parameters.matrixSize)+n] * 10.0f);
+                System.out.format("%.3f ", bMatrix[startIdx+(m*parameters.matrixSize)+n] * 1.0f);
             }
             System.out.println();
         }
-    } */
+    }
 
     private void printPosition(int x, int y) {
         double XCENTER = parameters.width/2.0f;

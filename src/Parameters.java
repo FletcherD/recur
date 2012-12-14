@@ -28,22 +28,24 @@ public class Parameters {
     boolean noiseOn;
     double noiseStd;
 
+    float[] debugMatrix = null;
+
     Parameters() {
         width = 500;
         height = 500;
         pixelNum = width*height;
-        rotateAngle = 1.0/5.0 * Math.PI;
-        scaleFactor = 1.;
+        rotateAngle = Math.PI * (1.0/5.0);
+        scaleFactor = 1.99;
         matrixSize = 5;
-        blurRadius = 1.2;
-        unsharpRadius = 1.2;
-        unsharpWeight = 1;
+        blurRadius = 0.5;
+        unsharpRadius = 1.0;
+        unsharpWeight = 1.0;
         contrast = new double[]{1.0, 1.0, 1.0, 1.0};
         brightness = new double[]{0.0, 0.0, 0.0, 0.0};
         borderColor = new double[]{0.05, 0.03, 0.03, 0.0};
         gamma = 3.0;
         noiseOn = true;
-        noiseStd = 0.01;
+        noiseStd = 0.001;
     }
 
     public String arrayFormatC(double in[]) {
@@ -64,5 +66,21 @@ public class Parameters {
             r[i] = Math.pow(borderColor[i], gamma);
         }
         return r;
+    }
+
+    public synchronized float[] getDebugMatrix() {
+        while(debugMatrix == null) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+
+            }
+        }
+        return debugMatrix;
+    }
+
+    public synchronized void setDebugMatrix(float[] in) {
+        debugMatrix = in;
+        notifyAll();
     }
 }

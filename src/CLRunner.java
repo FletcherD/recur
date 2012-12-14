@@ -119,6 +119,7 @@ public class CLRunner implements Runnable {
         setNoiseStdev();
         calculateBlurMatrices();
         calculateGaussianLookup();
+        parameters.setDebugMatrix(getMatrices());
         sharedGlData.release();
     }
 
@@ -179,6 +180,7 @@ public class CLRunner implements Runnable {
         source = source.replaceAll("HEIGHT", Integer.toString(parameters.height));
         source = source.replaceAll("MSIZE", Integer.toString(parameters.matrixSize));
         source = source.replaceAll("BRIGHTNESS", parameters.arrayFormatC(parameters.brightness));
+        source = source.replaceAll("CONTRAST", parameters.arrayFormatC(parameters.contrast));
         source = source.replaceAll("BORDER_COLOR_ORIG", parameters.arrayFormatC(parameters.borderColor));
         source = source.replaceAll("BORDER_COLOR_GAMMA", parameters.arrayFormatC(parameters.getBorderColorGamma()));
         source = source.replaceAll("GAMMA", Double.toString(parameters.gamma));
@@ -242,7 +244,7 @@ public class CLRunner implements Runnable {
 
     public void setGaussianBlur() {
         FloatBuffer bStd = BufferUtils.createFloatBuffer(1);
-        bStd.put((float)(-parameters.blurRadius));
+        bStd.put((float)(parameters.blurRadius));
         bStd.rewind();
         Util.checkCLError(clEnqueueWriteBuffer(iterateQueue, blurStd, 1, 0, bStd, null, null));
     }
@@ -299,7 +301,7 @@ public class CLRunner implements Runnable {
 
     public void calculateBlurMatrices() {
         IntBuffer err = BufferUtils.createIntBuffer(1);
-        CLKernel calcBlurKernel = clCreateKernel(program, "createBlurMatrices", err);
+        CLKernel calcBlurKernel = clCreateKernel(program, "createBokehMatrices", err);
         Util.checkCLError(err.get(0));
         CLMem blurMatrixTemp = clCreateBuffer(context, CL_MEM_WRITE_ONLY, BufferUtils.createFloatBuffer(parameters.matrixSize * parameters.matrixSize * parameters.pixelNum), null);
         calcBlurKernel.setArg(0, blurMatrixTemp);
