@@ -13,9 +13,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.io.*;
 
 import org.lwjgl.opencl.CL;
@@ -69,11 +67,13 @@ public class CLRunner implements Runnable {
     
     CLMem randomData;
     Parameters parameters;
+    Recur.SharedParameterUpdate parameterUpdate;
     Recur.SharedGlData sharedGlData;
 
-    public CLRunner(ImageData inImageData, Parameters p, Recur.SharedGlData inShared) {
+    public CLRunner(ImageData inImageData, Recur.SharedParameterUpdate p, Recur.SharedGlData inShared) {
         imageData = inImageData;
-        parameters = p;
+        parameters = p.parameters;
+        parameterUpdate = p;
         sharedGlData = inShared;
     }
 
@@ -137,6 +137,9 @@ public class CLRunner implements Runnable {
         long startTime = System.currentTimeMillis();
         while(status)
         {
+            if(parameterUpdate.getUpdate()) {
+                changeParameters();
+            }
             status = flipBuffers();
             frames++;
             long timeUsed = System.currentTimeMillis() - startTime;
@@ -177,7 +180,7 @@ public class CLRunner implements Runnable {
         IntBuffer err = BufferUtils.createIntBuffer(1);
         String source;
         try {
-            source = readKernelSource("/clCode/kernel.cl");
+            source = readKernelSource("/clCode/kernel.c");
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Failed to read kernel file.");
@@ -227,6 +230,16 @@ public class CLRunner implements Runnable {
         randomKernel.setArg(0, randomData);
         kernelPixelWorkSize.put(0, parameters.pixelNum);
         kernelRandomWorkSize.put(0, parameters.pixelNum/2);
+    }
+
+    public void changeParameters() {
+        parameters = parameterUpdate.parameters;
+        Parameters oldP = parameterUpdate.oldParameters;
+        if(parameters.scaleFactor != oldP.scaleFactor ||
+           parameters.rotateAngle != oldP.rotateAngle) {
+            setLinearTransform();
+            calculateBlurMatrices();
+        }
     }
 
     public void dispose() {
@@ -319,6 +332,7 @@ public class CLRunner implements Runnable {
         clFinish(iterateQueue);
         Util.checkCLError(clEnqueueCopyBuffer(iterateQueue, blurMatrixTemp, blurMatrix, 0, 0, parameters.pixelNum * parameters.matrixSize * parameters.matrixSize*4, null, null));
         clReleaseKernel(calcBlurKernel);
+        clReleaseMemObject(blurMatrixTemp);
         clFinish(iterateQueue);
     }
 

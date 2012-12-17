@@ -30,6 +30,9 @@ public class Parameters {
 
     float[] debugMatrix = null;
 
+    boolean updated = false;
+    Parameters lastParameters;
+
     Parameters() {
         width = 300;
         height = 300;
@@ -46,6 +49,25 @@ public class Parameters {
         gamma = 3.0;
         noiseOn = true;
         noiseStd = 0.001;
+    }
+
+    Parameters(Parameters in){
+
+        width = in.width;
+        height = in.height;
+        pixelNum = in.pixelNum;
+        rotateAngle = in.rotateAngle;
+        scaleFactor = in.scaleFactor;
+        matrixSize = in.matrixSize;
+        blurRadius = in.blurRadius;
+        unsharpRadius = in.unsharpRadius;
+        unsharpWeight = in.unsharpWeight;
+        contrast = in.contrast;
+        brightness = in.brightness;
+        borderColor = in.borderColor;
+        gamma = in.gamma;
+        noiseOn = in.noiseOn;
+        noiseStd = in.noiseStd;
     }
 
     public String arrayFormatC(double in[]) {

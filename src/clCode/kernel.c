@@ -6,37 +6,6 @@ __constant float3 borderColorGamma = BORDER_COLOR_GAMMA;
 __constant float3 brightness = BRIGHTNESS;
 __constant float3 contrast = CONTRAST;
 
-__inline__ float erfinv(float x)
-{
-    float w, p;
-    w = -log((1.0f-x)*(1.0f+x));
-    if ( w < 5.000000f ) {
-        w = w - 2.500000f;
-        p =  2.81022636e-08f;
-        p =  3.43273939e-07f + p*w;
-        p =  -3.5233877e-06f + p*w;
-        p = -4.39150654e-06f + p*w;
-        p =   0.00021858087f + p*w;
-        p =  -0.00125372503f + p*w;
-        p =  -0.00417768164f + p*w;
-        p =     0.246640727f + p*w;
-        p =      1.50140941f + p*w;
-    }
-    else {
-        w = sqrt(w) - 3.000000f;
-        p = -0.000200214257f;
-        p =  0.000100950558f + p*w;
-        p =   0.00134934322f + p*w;
-        p =  -0.00367342844f + p*w;
-        p =   0.00573950773f + p*w;
-        p =   -0.0076224613f + p*w;
-        p =   0.00943887047f + p*w;
-        p =      1.00167406f + p*w;
-        p =      2.83297682f + p*w;
-    }
-    return p*x;
-}
-
 float3 randomIntToColor(const uint color, __constant float *gaussianLookup)
 {
     float3 r;
@@ -57,22 +26,6 @@ float3 adjustColor(const float3 colorIn, const float3 randomColor)
     #endif
 
     return clamp(color, 0.0f, 1.0f);
-}
-
-kernel void unsharpMask(global const float3 *in, global float3 *out, __constant float *unsharpMatrix) {
-    unsigned int xid = get_global_id(0);
-    int x = xid%WIDTH;
-    int y = xid/WIDTH;
-    float3 color = {0.0f, 0.0f, 0.0f};
-    for(int n = max(0, (MSIZE/2)-y); n < min(MSIZE, HEIGHT-y+(MSIZE/2)); n++) {
-        int idx = (y+n-(MSIZE/2)) * WIDTH;
-        for(int m = max(0, (MSIZE/2)-x); m < min(MSIZE, WIDTH-x+(MSIZE/2)); m++) {
-            int newX = x+m-(MSIZE/2);
-            float matrixEntry = unsharpMatrix[(n*MSIZE)+m];
-            color += in[idx + newX] * matrixEntry;
-        }
-    }
-    out[xid] = color;
 }
 
 kernel void gammaApply(global float3 *in) {
@@ -129,6 +82,24 @@ kernel void iterate(global const float3 *in, global float3 *out, global const in
     #endif
 }
 
+kernel void unsharpMask(global const float3 *in, global float3 *out, __constant float *unsharpMatrix) {
+    unsigned int xid = get_global_id(0);
+    int x = xid%WIDTH;
+    int y = xid/WIDTH;
+    float3 color = {0.0f, 0.0f, 0.0f};
+    for(int n = max(0, (MSIZE/2)-y); n < min(MSIZE, HEIGHT-y+(MSIZE/2)); n++) {
+        int idx = (y+n-(MSIZE/2)) * WIDTH;
+        for(int m = max(0, (MSIZE/2)-x); m < min(MSIZE, WIDTH-x+(MSIZE/2)); m++) {
+            int newX = x+m-(MSIZE/2);
+            float matrixEntry = unsharpMatrix[(n*MSIZE)+m];
+            color += in[idx + newX] * matrixEntry;
+        }
+    }
+    out[xid] = color;
+}
+
+///////    ITERATE ALL THE RANDOM NUMBERS    ///////
+
 kernel void advanceRandomNumbers(global ulong *random) {
     uint xid = get_global_id(0);
     ulong x = random[xid];
@@ -137,6 +108,8 @@ kernel void advanceRandomNumbers(global ulong *random) {
     x ^= (x << 4);
     random[xid] = x;
 }
+
+///////    MATRIX COMPUTATION FUNCTIONS    ///////
 
 kernel void createBlurMatrices(global float *blurMatrices, global int2 *positions, __constant float *rMatrix, __constant float *blurStd) {
     const float XCENT = WIDTH/2.0;
@@ -233,6 +206,39 @@ kernel void createBokehMatrices(global float *blurMatrices, global int2 *positio
     {
         positions[xid].x = 0xFFFF;
     }
+}
+
+///////    GAUSSIAN FUNCTIONS    ////////
+
+__inline__ float erfinv(float x)
+{
+    float w, p;
+    w = -log((1.0f-x)*(1.0f+x));
+    if ( w < 5.000000f ) {
+        w = w - 2.500000f;
+        p =  2.81022636e-08f;
+        p =  3.43273939e-07f + p*w;
+        p =  -3.5233877e-06f + p*w;
+        p = -4.39150654e-06f + p*w;
+        p =   0.00021858087f + p*w;
+        p =  -0.00125372503f + p*w;
+        p =  -0.00417768164f + p*w;
+        p =     0.246640727f + p*w;
+        p =      1.50140941f + p*w;
+    }
+    else {
+        w = sqrt(w) - 3.000000f;
+        p = -0.000200214257f;
+        p =  0.000100950558f + p*w;
+        p =   0.00134934322f + p*w;
+        p =  -0.00367342844f + p*w;
+        p =   0.00573950773f + p*w;
+        p =   -0.0076224613f + p*w;
+        p =   0.00943887047f + p*w;
+        p =      1.00167406f + p*w;
+        p =      2.83297682f + p*w;
+    }
+    return p*x;
 }
 
 kernel void createGaussianLookup(global float *gaussianLookup, __constant float *stdev) {

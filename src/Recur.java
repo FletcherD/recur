@@ -48,7 +48,6 @@ public class Recur {
     CLRunner clRunner;
     GLDrawer glDrawer;
     ImageData imageData;
-    Parameters parameters;
     Thread glThread;
     Thread clThread;
 
@@ -103,6 +102,34 @@ public class Recur {
     }
     SharedGlData sharedGlData = new SharedGlData();
 
+    public class SharedParameterUpdate {
+        public Parameters parameters;
+        public Parameters oldParameters;
+        boolean update=false;
+
+        SharedParameterUpdate() {
+            parameters = new Parameters();
+
+        }
+
+        public synchronized void setUpdate(Parameters in){
+            if(!update) {
+                oldParameters = new Parameters(parameters);
+            }
+            parameters = new Parameters(in);
+            update = true;
+        }
+
+        public synchronized boolean getUpdate(){
+            if(update) {
+                update = false;
+                return true;
+            }
+            return false;
+        }
+    }
+    SharedParameterUpdate parameterUpdate = new SharedParameterUpdate();
+
     public static void main(String[] args) {
         new Recur().execute();
         System.exit(0);
@@ -113,10 +140,9 @@ public class Recur {
      */
     private void execute() {
 
-        parameters = new Parameters();
         try {
             imageData = new ImageData();
-            glDrawer = new GLDrawer(imageData, parameters, sharedGlData);
+            glDrawer = new GLDrawer(imageData, parameterUpdate, sharedGlData);
             glThread = new Thread((glDrawer));
             glThread.start();
         } catch (LWJGLException le) {
@@ -126,7 +152,7 @@ public class Recur {
         }
 
         try {
-            clRunner = new CLRunner(imageData, parameters, sharedGlData);
+            clRunner = new CLRunner(imageData, parameterUpdate, sharedGlData);
             clThread = new Thread(clRunner);
             clThread.start();
         } catch (Exception le) {
@@ -134,6 +160,9 @@ public class Recur {
             System.out.println("Failed to initialize OpenCL.");
             System.exit(0);
         }
+        ParametersUI parametersUI = new ParametersUI(parameterUpdate);
+
+
         while(glThread.isAlive()) {
             try {
                 glThread.join();

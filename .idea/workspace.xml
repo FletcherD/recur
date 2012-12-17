@@ -2,21 +2,27 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" readonly="true" id="b74b07f0-c9c5-4e69-ac53-ba297186a26f" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/ParametersUI.form" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/ParametersUI.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/CLRunner.java" afterPath="$PROJECT_DIR$/src/CLRunner.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/GLDrawer.java" afterPath="$PROJECT_DIR$/src/GLDrawer.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Parameters.java" afterPath="$PROJECT_DIR$/src/Parameters.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Recur.java" afterPath="$PROJECT_DIR$/src/Recur.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/clCode/kernel.cl" afterPath="$PROJECT_DIR$/src/clCode/kernel.cl" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/compiler.xml" afterPath="$PROJECT_DIR$/.idea/compiler.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MOVED" beforePath="C:\Users\fdostie\Documents\recur\src\clCode\kernel.cl" afterPath="$PROJECT_DIR$/src/clCode/kernel.c" />
     </list>
     <ignored path="Blur.iws" />
     <ignored path=".idea/workspace.xml" />
     <file path="/kernel.cl" changelist="b74b07f0-c9c5-4e69-ac53-ba297186a26f" time="1355709844287" ignored="false" />
-    <file path="/CLRunner.java" changelist="b74b07f0-c9c5-4e69-ac53-ba297186a26f" time="1355707546574" ignored="false" />
-    <file path="/Dummy.txt" changelist="b74b07f0-c9c5-4e69-ac53-ba297186a26f" time="1355711398508" ignored="false" />
-    <file path="/Parameters.java" changelist="b74b07f0-c9c5-4e69-ac53-ba297186a26f" time="1355708401683" ignored="false" />
-    <file path="/GLDrawer.java" changelist="b74b07f0-c9c5-4e69-ac53-ba297186a26f" time="1355711292976" ignored="false" />
-    <file path="/fragment.java" changelist="b74b07f0-c9c5-4e69-ac53-ba297186a26f" time="1355459977700" ignored="false" />
-    <file path="/Recur.java" changelist="b74b07f0-c9c5-4e69-ac53-ba297186a26f" time="1355707745810" ignored="false" />
+    <file path="/CLRunner.java" changelist="b74b07f0-c9c5-4e69-ac53-ba297186a26f" time="1355722075308" ignored="false" />
+    <file path="/Dummy.txt" changelist="b74b07f0-c9c5-4e69-ac53-ba297186a26f" time="1355724513787" ignored="false" />
+    <file path="/Parameters.java" changelist="b74b07f0-c9c5-4e69-ac53-ba297186a26f" time="1355720925853" ignored="false" />
+    <file path="/GLDrawer.java" changelist="b74b07f0-c9c5-4e69-ac53-ba297186a26f" time="1355719092714" ignored="false" />
+    <file path="/fragment.java" changelist="b74b07f0-c9c5-4e69-ac53-ba297186a26f" time="1355712616834" ignored="false" />
+    <file path="/Recur.java" changelist="b74b07f0-c9c5-4e69-ac53-ba297186a26f" time="1355722381179" ignored="false" />
+    <file path="/kernel.c" changelist="b74b07f0-c9c5-4e69-ac53-ba297186a26f" time="1355713484294" ignored="false" />
+    <file path="/ParametersUI.java" changelist="b74b07f0-c9c5-4e69-ac53-ba297186a26f" time="1355724020980" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,6 +47,62 @@
         <option name="COUNT_FILTER_ENABLED" value="false" />
         <option name="COUNT_FILTER" value="0" />
         <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/src/CLRunner.java" line="239" class="CLRunner" package="">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="SUSPEND" value="true" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="true" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/src/Recur.java" line="119" class="Recur.SharedParameterUpdate" package="">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="SUSPEND" value="true" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="true" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/src/ParametersUI.java" line="50" class="ParametersUI$2" package="">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="SUSPEND" value="true" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="true" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/src/ParametersUI.java" line="41" class="ParametersUI$1" package="">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="SUSPEND" value="true" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="true" />
         <option name="CLASS_FILTERS_ENABLED" value="false" />
         <option name="INSTANCE_FILTERS_ENABLED" value="false" />
         <option name="CONDITION" value="" />
@@ -107,16 +169,7 @@
       <file leaf-file-name="GLDrawer.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/GLDrawer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="106" column="54" selection-start="3833" selection-end="3833" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Recur.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Recur.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="138" column="16" selection-start="4505" selection-end="4505" vertical-scroll-proportion="0.0">
+            <state line="31" column="44" selection-start="943" selection-end="943" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -143,7 +196,7 @@
       <file leaf-file-name="CLRunner.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/CLRunner.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="162" column="97" selection-start="6344" selection-end="6344" vertical-scroll-proportion="0.0">
+            <state line="239" column="0" selection-start="10141" selection-end="10141" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -161,16 +214,42 @@
       <file leaf-file-name="Parameters.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Parameters.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="37" column="25" selection-start="711" selection-end="712" vertical-scroll-proportion="0.0">
+            <state line="51" column="41" selection-start="1111" selection-end="1111" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="kernel.cl" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/clCode/kernel.cl">
+      <file leaf-file-name="ParametersUI.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/ParametersUI.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="190" column="45" selection-start="6154" selection-end="6154" vertical-scroll-proportion="4.9615974">
+            <state line="30" column="53" selection-start="938" selection-end="938" vertical-scroll-proportion="0.043010753">
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="e#1352#1609#0" expanded="true" />
+                <element signature="e#1598#1599#0" expanded="true" />
+                <element signature="e#1720#1976#0" expanded="true" />
+                <element signature="e#1965#1966#0" expanded="true" />
+                <element signature="e#2091#2483#0" expanded="true" />
+                <element signature="e#2472#2473#0" expanded="true" />
+                <element signature="e#2603#3001#0" expanded="true" />
+                <element signature="e#2990#2991#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ParametersUI.form" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/ParametersUI.form">
+          <provider selected="true" editor-type-id="ui-designer">
+            <state />
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Recur.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/Recur.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="119" column="0" selection-start="3949" selection-end="3949" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -197,11 +276,15 @@
         <option value="$PROJECT_DIR$/src/CLResources.java" />
         <option value="$PROJECT_DIR$/src/Blur.java" />
         <option value="$PROJECT_DIR$/src/ImageData.java" />
+        <option value="$PROJECT_DIR$/src/clCode/kernel.cl" />
+        <option value="$PROJECT_DIR$/src/clCode/gaussian.c" />
+        <option value="$PROJECT_DIR$/src/clCode/kernel.c" />
+        <option value="$PROJECT_DIR$/src/GLDrawer.java" />
+        <option value="$PROJECT_DIR$/src/Parameters.java" />
         <option value="$PROJECT_DIR$/src/CLRunner.java" />
         <option value="$PROJECT_DIR$/src/Recur.java" />
-        <option value="$PROJECT_DIR$/src/clCode/kernel.cl" />
-        <option value="$PROJECT_DIR$/src/Parameters.java" />
-        <option value="$PROJECT_DIR$/src/GLDrawer.java" />
+        <option value="$PROJECT_DIR$/src/ParametersUI.form" />
+        <option value="$PROJECT_DIR$/src/ParametersUI.java" />
       </list>
     </option>
   </component>
@@ -288,6 +371,24 @@
               <option name="myItemId" value="src" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ParametersUI" />
+              <option name="myItemType" value="com.intellij.uiDesigner.projectView.FormNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Blur" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="recur" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
           </PATH>
           <PATH>
             <PATH_ELEMENT>
@@ -323,7 +424,8 @@
   </component>
   <component name="PropertiesComponent">
     <property name="GoToFile.includeJavaFiles" value="false" />
-    <property name="project.structure.last.edited" value="Project" />
+    <property name="project.structure.last.edited" value="Modules" />
+    <property name="OverrideImplement.combined" value="false" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="options.splitter.main.proportions" value="0.3" />
     <property name="recentsLimit" value="5" />
@@ -463,6 +565,11 @@
     </configuration>
   </component>
   <component name="ShelveChangesManager" show_recycled="false" />
+  <component name="SliceManager">
+    <option name="analysisUIOptions">
+      <AnalysisUIOptions />
+    </option>
+  </component>
   <component name="SvnConfiguration" maxAnnotateRevisions="500" myUseAcceleration="nothing" myAutoUpdateAfterCommit="false" cleanupOnStartRun="true">
     <option name="USER" value="" />
     <option name="PASSWORD" value="" />
@@ -543,16 +650,22 @@
       <created>1355707921107</created>
       <updated>1355707921107</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Use float3 array in OpenCL, avoid calculations in alpha channel&#10;Exit properly when recursion is stopped">
+      <created>1355711503108</created>
+      <updated>1355711503108</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="-9" y="-9" width="1938" height="1170" extended-state="0" />
     <editor active="false" />
     <layout>
+      <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32924226" sideWeight="0.6023857" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Changes" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32703778" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.329582" sideWeight="0.67608476" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.329582" sideWeight="0.6781029" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32924226" sideWeight="0.6023857" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32902583" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3976143" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
@@ -563,14 +676,12 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32977587" sideWeight="0.6744705" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.255603" sideWeight="0.67296225" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25453576" sideWeight="0.6799205" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32007954" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.329582" sideWeight="0.6781029" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Documentation" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="FLOATING" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" x="310" y="76" width="1082" height="534" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="SVN Properties" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32996973" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32996973" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="SVN Repositories" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32795155" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -614,7 +725,7 @@
     <option name="MAXIMUM_HISTORY_ROWS" value="1000" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="Use float3 array in OpenCL, avoid calculations in alpha channel&#10;Exit properly when recursion is stopped" />
+    <option name="LAST_COMMIT_MESSAGE" value="Beginning of a UI to change parameter values!&#10;SharedParameterUpdate to notify of parameter changes" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="false" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_FILES_UP_TO_DATE_BEFORE_COMMIT" value="false" />
@@ -639,6 +750,7 @@
     <MESSAGE value="Border color now a parameter - brightness now per-channel" />
     <MESSAGE value="Better exiting by properly ending OpenCL thread" />
     <MESSAGE value="Use float3 array in OpenCL, avoid calculations in alpha channel&#10;Exit properly when recursion is stopped" />
+    <MESSAGE value="Beginning of a UI to change parameter values!&#10;SharedParameterUpdate to notify of parameter changes" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -648,20 +760,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar://C:/Program Files/Java/jdk1.7.0_09/src.zip!/java/lang/Thread.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="1246" column="35" selection-start="48800" selection-end="48800" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/clCode/kernel.cl">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="179" column="128" selection-start="6127" selection-end="6178" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$PROJECT_DIR$/lwjgl-debug.jar!/org/lwjgl/opengl/GL11.class">
       <provider selected="true" editor-type-id="text-editor">
         <state line="1668" column="0" selection-start="80750" selection-end="80750" vertical-scroll-proportion="-20.0" />
@@ -717,38 +815,60 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/CLRunner.java">
+    <entry file="file://$PROJECT_DIR$/src/clCode/kernel.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="162" column="97" selection-start="6344" selection-end="6344" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Recur.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="138" column="16" selection-start="4505" selection-end="4505" vertical-scroll-proportion="0.0">
+        <state line="7" column="0" selection-start="330" selection-end="330" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/GLDrawer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="106" column="54" selection-start="3833" selection-end="3833" vertical-scroll-proportion="0.0">
+        <state line="31" column="44" selection-start="943" selection-end="943" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Parameters.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="37" column="25" selection-start="711" selection-end="712" vertical-scroll-proportion="0.0">
+        <state line="51" column="41" selection-start="1111" selection-end="1111" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/clCode/kernel.cl">
+    <entry file="file://$PROJECT_DIR$/src/ParametersUI.form">
+      <provider selected="true" editor-type-id="ui-designer">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Recur.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="190" column="45" selection-start="6154" selection-end="6154" vertical-scroll-proportion="4.9615974">
+        <state line="119" column="0" selection-start="3949" selection-end="3949" vertical-scroll-proportion="0.0">
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/CLRunner.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="239" column="0" selection-start="10141" selection-end="10141" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/ParametersUI.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="30" column="53" selection-start="938" selection-end="938" vertical-scroll-proportion="0.043010753">
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#1352#1609#0" expanded="true" />
+            <element signature="e#1598#1599#0" expanded="true" />
+            <element signature="e#1720#1976#0" expanded="true" />
+            <element signature="e#1965#1966#0" expanded="true" />
+            <element signature="e#2091#2483#0" expanded="true" />
+            <element signature="e#2472#2473#0" expanded="true" />
+            <element signature="e#2603#3001#0" expanded="true" />
+            <element signature="e#2990#2991#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

@@ -28,8 +28,8 @@ import static org.lwjgl.opengl.Util.checkGLError;
 
     Parameters parameters;
 
-    public GLDrawer(ImageData inImageData, Parameters inParameters, Recur.SharedGlData inShared) throws LWJGLException {
-        parameters = inParameters;
+    public GLDrawer(ImageData inImageData, Recur.SharedParameterUpdate inParameters, Recur.SharedGlData inShared) throws LWJGLException {
+        parameters = inParameters.parameters;
         imageData = inImageData;
         sharedGlData = inShared;
     }
