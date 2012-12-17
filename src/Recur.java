@@ -72,7 +72,7 @@ public class Recur {
                     wait();
                 } catch (InterruptedException e) {e.printStackTrace();}
             }
-            clAcquire();
+            try{ clAcquire(); } catch (LWJGLException e) {e.printStackTrace();}
             return drawable;
         }
 
@@ -91,13 +91,13 @@ public class Recur {
             try { Display.makeCurrent(); } catch (LWJGLException e) {e.printStackTrace();}
         }
 
-        public synchronized void clAcquire(){
+        public synchronized void clAcquire() throws LWJGLException {
             clWaiting = true;
             notifyAll();
             lock.lock();
             clWaiting = false;
             notifyAll();
-            try { Display.makeCurrent(); } catch (LWJGLException e) {e.printStackTrace();}
+            Display.makeCurrent();
         }
 
 
@@ -138,8 +138,10 @@ public class Recur {
         while(glThread.isAlive()) {
             try {
             glThread.join();
+            clThread.join();
             } catch (InterruptedException e) {}
         }
+        return;
     }
 
     /**
