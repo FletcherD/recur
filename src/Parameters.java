@@ -34,8 +34,8 @@ public class Parameters {
     Parameters lastParameters;
 
     Parameters() {
-        width = 300;
-        height = 300;
+        width = 500;
+        height = 500;
         pixelNum = width*height;
         rotateAngle = Math.PI * (1.0/5.0);
         scaleFactor = 1.75;

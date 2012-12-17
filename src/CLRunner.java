@@ -77,6 +77,18 @@ public class CLRunner implements Runnable {
         sharedGlData = inShared;
     }
 
+    public void printClInfo() {
+        //TODO: If OpenCL 1.1 isn't supported, fallback to float4
+        ByteBuffer valueBuf = BufferUtils.createByteBuffer(128);
+        PointerBuffer lenBuf = BufferUtils.createPointerBuffer(1);
+        clGetDeviceInfo(devices.get(0), CL_DEVICE_NAME, valueBuf, lenBuf);
+        System.out.println("OpenCL Device: " + bufToString(valueBuf, lenBuf));
+        clGetDeviceInfo(devices.get(0), CL_DEVICE_VERSION, valueBuf, lenBuf);
+        System.out.println("OpenCL Version Supported: " + bufToString(valueBuf, lenBuf));
+        clGetDeviceInfo(devices.get(0), CL_DRIVER_VERSION, valueBuf, lenBuf);
+        System.out.println("OpenCL Software Driver Version: " + bufToString(valueBuf, lenBuf));
+    }
+
     private void init() throws Exception {
         Drawable d = sharedGlData.get();
         CL.create();
@@ -85,6 +97,8 @@ public class CLRunner implements Runnable {
         IntBuffer err = BufferUtils.createIntBuffer(1);
         context = CLContext.create(platform, devices, null, d, err);
         Util.checkCLError(err.get(0));
+        printClInfo();
+
         iterateQueue = clCreateCommandQueue(context, devices.get(0), CL_QUEUE_PROFILING_ENABLE, null);
         convertQueue = clCreateCommandQueue(context, devices.get(0), CL_QUEUE_PROFILING_ENABLE, null);
         randomQueue = clCreateCommandQueue(context, devices.get(0), CL_QUEUE_PROFILING_ENABLE, null);
@@ -176,6 +190,14 @@ public class CLRunner implements Runnable {
         return true;
     }
 
+    public String bufToString(ByteBuffer strBuf, PointerBuffer lenBuf) {
+        String log = "";
+        for(int i = 0; i < lenBuf.get(0); i++) {
+            log += (char)(strBuf.get());
+        }
+        return log;
+    }
+
     public void buildKernel() throws Exception {
         IntBuffer err = BufferUtils.createIntBuffer(1);
         String source;
@@ -207,9 +229,7 @@ public class CLRunner implements Runnable {
             clGetProgramBuildInfo(program, devices.get(0), CL_PROGRAM_BUILD_LOG, null, logSize);
             ByteBuffer logBuf = BufferUtils.createByteBuffer((int)(logSize.get(0)));
             clGetProgramBuildInfo(program, devices.get(0), CL_PROGRAM_BUILD_LOG, logBuf, logSize);
-            String log = "";
-            while(logBuf.hasRemaining()) { log += (char)(logBuf.get()); }
-            System.out.println(log);
+            System.out.println(bufToString(logBuf, logSize));
             throw er;
         }
         // sum has to match a kernel method name in the OpenCL source
