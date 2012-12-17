@@ -256,9 +256,19 @@ public class CLRunner implements Runnable {
         parameters = parameterUpdate.parameters;
         Parameters oldP = parameterUpdate.oldParameters;
         if(parameters.scaleFactor != oldP.scaleFactor ||
-           parameters.rotateAngle != oldP.rotateAngle) {
+           parameters.rotateAngle != oldP.rotateAngle ||
+           parameters.blurRadius != oldP.blurRadius) {
             setLinearTransform();
+            setGaussianBlur();
             calculateBlurMatrices();
+        }
+        if(parameters.unsharpRadius != oldP.unsharpRadius ||
+           parameters.unsharpWeight != oldP.unsharpWeight) {
+            setUnsharp();
+        }
+        if(parameters.noiseStd != oldP.noiseStd) {
+            setNoiseStdev();
+            calculateGaussianLookup();
         }
     }
 

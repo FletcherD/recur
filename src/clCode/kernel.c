@@ -6,6 +6,15 @@ __constant float3 borderColorGamma = BORDER_COLOR_GAMMA;
 __constant float3 brightness = BRIGHTNESS;
 __constant float3 contrast = CONTRAST;
 
+struct Params
+{
+    float3 brightness;
+    float3 contrast;
+    float3 borderColor;
+    float gamma;
+    float noiseStd;
+} ;
+
 float3 randomIntToColor(const uint color, __constant float *gaussianLookup)
 {
     float3 r;
