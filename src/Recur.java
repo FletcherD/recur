@@ -136,11 +136,10 @@ public class Recur {
         }
         while(glThread.isAlive()) {
             try {
-            glThread.join();
-            clThread.join();
+                glThread.join();
+                return;
             } catch (InterruptedException e) {}
         }
-        return;
     }
 
     /**

@@ -63,7 +63,6 @@ import static org.lwjgl.opengl.Util.checkGLError;
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
         FloatBuffer data = BufferUtils.createFloatBuffer(parameters.width * parameters.height * 4);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, parameters.width, parameters.height, 0, GL_RGBA, GL_FLOAT, data);
         setupBuffers();
         glBindTexture(GL_TEXTURE_2D, textureID);
         sharedGlData.set(Display.getDrawable());
@@ -105,7 +104,7 @@ import static org.lwjgl.opengl.Util.checkGLError;
             //glClear(GL_COLOR_BUFFER_BIT);
             try {
                 glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, imageData.getBuffer());
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, parameters.width, parameters.height, 0, GL_RGBA, GL_FLOAT, (long) 0);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, parameters.width, parameters.height, 0, GL_RGBA, GL_FLOAT, (long) 0);
                 checkGLError();
             } catch (OpenGLException e) {
                 e.printStackTrace();

@@ -1,13 +1,10 @@
 //NOISE_DEFINE
 __constant float2 windowCenter = {(float)WIDTH / 2.0, (float)HEIGHT / 2.0};
-__constant float4 centerColor = {0.5, 0.5, 0.5, 0.0};
-__constant float4 borderColor = BORDER_COLOR_ORIG;
-__constant float4 borderColorGamma = BORDER_COLOR_GAMMA;
-__constant float4 brightness = BRIGHTNESS;
-__constant float4 contrast = CONTRAST;
-__constant float4 colorTransform[] = { {1.0, 0.0, 0.0, 0.0},
-                                       {0.0, 1.0, 0.0, 0.0},
-                                       {0.0, 0.0, 1.0, 0.0} };
+__constant float3 centerColor = {0.5, 0.5, 0.5};
+__constant float3 borderColor = BORDER_COLOR_ORIG;
+__constant float3 borderColorGamma = BORDER_COLOR_GAMMA;
+__constant float3 brightness = BRIGHTNESS;
+__constant float3 contrast = CONTRAST;
 
 __inline__ float erfinv(float x)
 {
@@ -40,18 +37,18 @@ __inline__ float erfinv(float x)
     return p*x;
 }
 
-float4 randomIntToColor(const uint color, __constant float *gaussianLookup)
+float3 randomIntToColor(const uint color, __constant float *gaussianLookup)
 {
-    float4 r;
+    float3 r;
     r.x = gaussianLookup[color&(1024-1)];
     r.y = gaussianLookup[(color>>10)&(1024-1)];
     r.z = gaussianLookup[(color>>20)&(1024-1)];
     return r;
 }
 
-float4 adjustColor(const float4 colorIn, const float4 randomColor)
+float3 adjustColor(const float3 colorIn, const float3 randomColor)
 {
-    float4 color = ((colorIn - centerColor)) ;
+    float3 color = ((colorIn - centerColor)) ;
     color *= contrast;
     #ifdef NOISE
     	color += brightness + centerColor + randomColor;
@@ -62,33 +59,32 @@ float4 adjustColor(const float4 colorIn, const float4 randomColor)
     return clamp(color, 0.0f, 1.0f);
 }
 
-kernel void unsharpMask(global const float4 *in, global float4 *out, __constant float *unsharpMatrix) {
+kernel void unsharpMask(global const float3 *in, global float3 *out, __constant float *unsharpMatrix) {
     unsigned int xid = get_global_id(0);
     int x = xid%WIDTH;
     int y = xid/WIDTH;
-    float4 color = {0.0f, 0.0f, 0.0f, 0.0f};
+    float3 color = {0.0f, 0.0f, 0.0f};
     for(int n = max(0, (MSIZE/2)-y); n < min(MSIZE, HEIGHT-y+(MSIZE/2)); n++) {
         int idx = (y+n-(MSIZE/2)) * WIDTH;
         for(int m = max(0, (MSIZE/2)-x); m < min(MSIZE, WIDTH-x+(MSIZE/2)); m++) {
             int newX = x+m-(MSIZE/2);
             float matrixEntry = unsharpMatrix[(n*MSIZE)+m];
             color += in[idx + newX] * matrixEntry;
-            //color = mad(in[idx+newX], matrixEntry, color);
         }
     }
     out[xid] = color;
 }
 
-kernel void gammaApply(global float4 *in) {
+kernel void gammaApply(global float3 *in) {
     unsigned int xid = get_global_id(0);
     in[xid] = pow(in[xid], GAMMA);
 }
 
-__inline__ float4 gammaCorrect(const float4 in) {
+__inline__ float3 gammaCorrect(const float3 in) {
     return pow(in, 1.0/GAMMA);
 }
 
-kernel void iterate(global const float4 *in, global float4 *out, global const int2 *positions, 
+kernel void iterate(global const float3 *in, global float3 *out, global const int2 *positions,
 					global const float *blurMatrices, global const uint *randomData, __constant float *gaussianLookup) {
     unsigned int xid = get_global_id(0);
     int2 matrixPos = positions[xid];
@@ -102,7 +98,7 @@ kernel void iterate(global const float4 *in, global float4 *out, global const in
         return;
     }
 
-    float4 color = {0.0, 0.0, 0.0, 0.0};
+    float3 color = {0.0, 0.0, 0.0};
     unsigned int matrixIdx = xid * MSIZE * MSIZE;
     for(int m = 0; m < MSIZE; m++) {
         int x = matrixPos.x + m;
@@ -190,8 +186,8 @@ float chordArea(float r, float d)
 }
 
 kernel void createBokehMatrices(global float *blurMatrices, global int2 *positions, __constant float *rMatrix, __constant float *bokehRadius) {
-    const float XCENT = WIDTH/2.0;
-    const float YCENT = HEIGHT/2.0;
+    const float XCENT = floor(WIDTH/2.0)+0.2;
+    const float YCENT = floor(HEIGHT/2.0)+0.3;
 
     unsigned int xid = get_global_id(0);
     float oldxPos = (float)(xid%WIDTH) - XCENT;

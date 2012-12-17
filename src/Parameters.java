@@ -31,18 +31,18 @@ public class Parameters {
     float[] debugMatrix = null;
 
     Parameters() {
-        width = 500;
-        height = 500;
+        width = 300;
+        height = 300;
         pixelNum = width*height;
         rotateAngle = Math.PI * (1.0/5.0);
-        scaleFactor = 1.99;
+        scaleFactor = 1.75;
         matrixSize = 5;
         blurRadius = 0.5;
         unsharpRadius = 1.0;
         unsharpWeight = 1.0;
-        contrast = new double[]{1.0, 1.0, 1.0, 1.0};
-        brightness = new double[]{0.0, 0.0, 0.0, 0.0};
-        borderColor = new double[]{0.05, 0.03, 0.03, 0.0};
+        contrast = new double[]{1.0, 1.0, 1.0};
+        brightness = new double[]{0.0, 0.0, 0.0};
+        borderColor = new double[]{0.05, 0.03, 0.03};
         gamma = 3.0;
         noiseOn = true;
         noiseStd = 0.001;
@@ -61,8 +61,8 @@ public class Parameters {
     }
 
     public double[] getBorderColorGamma() {
-        double[] r = new double[4];
-        for(int i = 0; i < 4; i++) {
+        double[] r = new double[borderColor.length];
+        for(int i = 0; i < borderColor.length; i++) {
             r[i] = Math.pow(borderColor[i], gamma);
         }
         return r;
