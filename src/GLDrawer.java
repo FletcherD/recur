@@ -95,7 +95,12 @@ import static org.lwjgl.opengl.Util.checkGLError;
         int frames = 0;
         long startTime = System.currentTimeMillis();
         while (!closeRequested) {
-            sharedGlData.glAcquire();
+            try {
+                sharedGlData.glAcquire();
+            } catch (LWJGLException e) {
+                e.printStackTrace();
+                return;
+            }
 
             //glClear(GL_COLOR_BUFFER_BIT);
             try {

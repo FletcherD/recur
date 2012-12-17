@@ -59,7 +59,7 @@ public class Recur {
         public Lock lock = new ReentrantLock();
 
         public synchronized void set(Drawable d) {
-            glAcquire();
+            try {glAcquire();} catch (LWJGLException e) {e.printStackTrace();}
             drawable = d;
             initialized = true;
             release();
@@ -81,14 +81,14 @@ public class Recur {
             lock.unlock();
         }
 
-        public synchronized void glAcquire(){
+        public synchronized void glAcquire() throws LWJGLException {
             while (clWaiting) {
                 try {
                     wait();
                 } catch (InterruptedException e) {e.printStackTrace();}
             }
             lock.lock();
-            try { Display.makeCurrent(); } catch (LWJGLException e) {e.printStackTrace();}
+            Display.makeCurrent();
         }
 
         public synchronized void clAcquire() throws LWJGLException {
@@ -99,7 +99,6 @@ public class Recur {
             notifyAll();
             Display.makeCurrent();
         }
-
 
     }
     SharedGlData sharedGlData = new SharedGlData();

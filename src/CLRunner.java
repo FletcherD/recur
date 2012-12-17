@@ -1,3 +1,4 @@
+import org.lwjgl.LWJGLException;
 import org.lwjgl.opencl.Util;
 import org.lwjgl.opencl.CLMem;
 import org.lwjgl.opencl.CLCommandQueue;
@@ -125,6 +126,7 @@ public class CLRunner implements Runnable {
 
     public void run() {
         int frames = 0;
+        boolean status = true;
         try{
             init();
         } catch (Exception e) {
@@ -133,9 +135,9 @@ public class CLRunner implements Runnable {
             return;
         }
         long startTime = System.currentTimeMillis();
-        while(true)
+        while(status)
         {
-            flipBuffers();
+            status = flipBuffers();
             frames++;
             long timeUsed = System.currentTimeMillis() - startTime;
             if (timeUsed > 2000) {
@@ -147,12 +149,16 @@ public class CLRunner implements Runnable {
         }
     }
 
-    public void flipBuffers() {
+    public boolean flipBuffers() {
         clEnqueueNDRangeKernel(iterateQueue, gammaKernel, 1, null, kernelPixelWorkSize, null, null, null);
         clEnqueueNDRangeKernel(iterateQueue, blurKernel, 1, null, kernelPixelWorkSize, null, null, null);
         clEnqueueNDRangeKernel(iterateQueue, unsharpKernel, 1, null, kernelPixelWorkSize, null, null, null);
         clFinish(iterateQueue);
-        sharedGlData.clAcquire();
+        try{
+            sharedGlData.clAcquire();
+        } catch (LWJGLException e) {
+            return false;
+        }
         CL10GL.clEnqueueAcquireGLObjects(iterateQueue, pboMem[imageData.getWorkingFlip()], null, null);
         clEnqueueCopyBuffer(iterateQueue, floatImage, pboMem[imageData.getWorkingFlip()], 0, 0, 4*4*kernelPixelWorkSize.get(0), null, null);
         CL10GL.clEnqueueReleaseGLObjects(iterateQueue, pboMem[imageData.getWorkingFlip()], null, null);
@@ -164,6 +170,7 @@ public class CLRunner implements Runnable {
         if(parameters.noiseOn) {
             clEnqueueNDRangeKernel(randomQueue, randomKernel, 1, null, kernelRandomWorkSize, null, null, null);
         }
+        return true;
     }
 
     public void buildKernel() throws Exception {
