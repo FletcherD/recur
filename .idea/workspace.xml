@@ -2,9 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" readonly="true" id="b74b07f0-c9c5-4e69-ac53-ba297186a26f" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/CLRunner.java" afterPath="$PROJECT_DIR$/src/CLRunner.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ParametersUI.form" afterPath="$PROJECT_DIR$/src/ParametersUI.form" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ParametersUI.java" afterPath="$PROJECT_DIR$/src/ParametersUI.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/clCode/kernel.c" afterPath="$PROJECT_DIR$/src/clCode/kernel.c" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
@@ -12,12 +9,12 @@
     <ignored path=".idea/workspace.xml" />
     <file path="/kernel.cl" changelist="b74b07f0-c9c5-4e69-ac53-ba297186a26f" time="1355709844287" ignored="false" />
     <file path="/CLRunner.java" changelist="b74b07f0-c9c5-4e69-ac53-ba297186a26f" time="1355775566586" ignored="false" />
-    <file path="/Dummy.txt" changelist="b74b07f0-c9c5-4e69-ac53-ba297186a26f" time="1355776207104" ignored="false" />
+    <file path="/Dummy.txt" changelist="b74b07f0-c9c5-4e69-ac53-ba297186a26f" time="1355851876436" ignored="false" />
     <file path="/Parameters.java" changelist="b74b07f0-c9c5-4e69-ac53-ba297186a26f" time="1355720925853" ignored="false" />
     <file path="/GLDrawer.java" changelist="b74b07f0-c9c5-4e69-ac53-ba297186a26f" time="1355719092714" ignored="false" />
     <file path="/fragment.java" changelist="b74b07f0-c9c5-4e69-ac53-ba297186a26f" time="1355712616834" ignored="false" />
     <file path="/Recur.java" changelist="b74b07f0-c9c5-4e69-ac53-ba297186a26f" time="1355722381179" ignored="false" />
-    <file path="/kernel.c" changelist="b74b07f0-c9c5-4e69-ac53-ba297186a26f" time="1355772574649" ignored="false" />
+    <file path="/kernel.c" changelist="b74b07f0-c9c5-4e69-ac53-ba297186a26f" time="1355846982291" ignored="false" />
     <file path="/ParametersUI.java" changelist="b74b07f0-c9c5-4e69-ac53-ba297186a26f" time="1355775412495" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -33,40 +30,7 @@
     <disable_hints />
   </component>
   <component name="DebuggerManager">
-    <breakpoint_any default_suspend_policy="SuspendAll" default_condition_enabled="true">
-      <breakpoint>
-        <option name="NOTIFY_CAUGHT" value="true" />
-        <option name="NOTIFY_UNCAUGHT" value="true" />
-        <option name="ENABLED" value="false" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="SUSPEND" value="true" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="false" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
-      <breakpoint>
-        <option name="NOTIFY_CAUGHT" value="true" />
-        <option name="NOTIFY_UNCAUGHT" value="true" />
-        <option name="ENABLED" value="false" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="SUSPEND" value="true" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="false" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
-    </breakpoint_any>
+    <breakpoint_rules default_suspend_policy="SuspendAll" default_condition_enabled="true" />
     <line_breakpoints default_suspend_policy="SuspendAll" default_condition_enabled="true">
       <breakpoint url="file://$PROJECT_DIR$/src/ImageData.java" line="38" class="ImageData" package="">
         <option name="ENABLED" value="true" />
@@ -139,7 +103,40 @@
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
     </line_breakpoints>
-    <breakpoint_rules default_suspend_policy="SuspendAll" default_condition_enabled="true" />
+    <breakpoint_any default_suspend_policy="SuspendAll" default_condition_enabled="true">
+      <breakpoint>
+        <option name="NOTIFY_CAUGHT" value="true" />
+        <option name="NOTIFY_UNCAUGHT" value="true" />
+        <option name="ENABLED" value="false" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="SUSPEND" value="true" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint>
+        <option name="NOTIFY_CAUGHT" value="true" />
+        <option name="NOTIFY_UNCAUGHT" value="true" />
+        <option name="ENABLED" value="false" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="SUSPEND" value="true" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+    </breakpoint_any>
     <ui_properties default_suspend_policy="SuspendAll" default_condition_enabled="true" />
     <breakpoint_rules />
     <ui_properties />
@@ -183,7 +180,7 @@
       <file leaf-file-name="CL10.class" pinned="false" current="false" current-in-tab="false">
         <entry file="jar://$PROJECT_DIR$/lwjgl-debug.jar!/org/lwjgl/opencl/CL10.class">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="630" column="0" selection-start="46097" selection-end="46097" vertical-scroll-proportion="0.0">
+            <state line="630" column="0" selection-start="45989" selection-end="45989" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -198,28 +195,12 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ParametersUI.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="ParametersUI.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/ParametersUI.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="114" column="51" selection-start="4567" selection-end="4567" vertical-scroll-proportion="1.1537133">
+            <state line="114" column="51" selection-start="4567" selection-end="4567" vertical-scroll-proportion="0.0">
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#1496#1753#0" expanded="true" />
-                <element signature="e#1742#1743#0" expanded="true" />
-                <element signature="e#1864#2120#0" expanded="true" />
-                <element signature="e#2109#2110#0" expanded="true" />
-                <element signature="e#2236#2629#0" expanded="true" />
-                <element signature="e#2618#2619#0" expanded="true" />
-                <element signature="e#2753#3151#0" expanded="true" />
-                <element signature="e#3140#3141#0" expanded="true" />
-                <element signature="e#3264#3519#0" expanded="true" />
-                <element signature="e#3508#3509#0" expanded="true" />
-                <element signature="e#3639#3899#0" expanded="true" />
-                <element signature="e#3888#3889#0" expanded="true" />
-                <element signature="e#4029#4294#0" expanded="true" />
-                <element signature="e#4283#4284#0" expanded="true" />
-                <element signature="e#4417#4680#0" expanded="true" />
-                <element signature="e#4669#4670#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -241,10 +222,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="kernel.c" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="kernel.c" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/clCode/kernel.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="15" column="3" selection-start="455" selection-end="455" vertical-scroll-proportion="0.0">
+            <state line="21" column="157" selection-start="638" selection-end="638" vertical-scroll-proportion="-2.4034483">
               <folding />
             </state>
           </provider>
@@ -276,10 +257,10 @@
         <option value="$PROJECT_DIR$/src/Recur.java" />
         <option value="$PROJECT_DIR$/src/Parameters.java" />
         <option value="$PROJECT_DIR$/src/GLDrawer.java" />
-        <option value="$PROJECT_DIR$/src/clCode/kernel.c" />
         <option value="$PROJECT_DIR$/src/CLRunner.java" />
         <option value="$PROJECT_DIR$/src/ParametersUI.form" />
         <option value="$PROJECT_DIR$/src/ParametersUI.java" />
+        <option value="$PROJECT_DIR$/src/clCode/kernel.c" />
       </list>
     </option>
   </component>
@@ -413,9 +394,9 @@
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
     <property name="MemberChooser.showClasses" value="true" />
     <property name="GoToClass.includeLibraries" value="false" />
-    <property name="options.searchVisible" value="true" />
-    <property name="options.splitter.details.proportions" value="0.2" />
     <property name="dynamic.classpath" value="false" />
+    <property name="options.splitter.details.proportions" value="0.2" />
+    <property name="options.searchVisible" value="true" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -435,6 +416,19 @@
       <option name="SHMEM_ADDRESS" value="javadebug" />
       <option name="HOST" value="localhost" />
       <option name="PORT" value="5005" />
+      <method />
+    </configuration>
+    <configuration default="true" type="Applet" factoryName="Applet">
+      <module name="" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="HTML_FILE_NAME" />
+      <option name="HTML_USED" value="false" />
+      <option name="WIDTH" value="400" />
+      <option name="HEIGHT" value="300" />
+      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
+      <option name="VM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
       <method />
     </configuration>
     <configuration default="true" type="TestNG" factoryName="TestNG">
@@ -462,19 +456,6 @@
       <envs />
       <properties />
       <listeners />
-      <method />
-    </configuration>
-    <configuration default="true" type="Applet" factoryName="Applet">
-      <module name="" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="HTML_FILE_NAME" />
-      <option name="HTML_USED" value="false" />
-      <option name="WIDTH" value="400" />
-      <option name="HEIGHT" value="300" />
-      <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
-      <option name="VM_PARAMETERS" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
       <method />
     </configuration>
     <configuration default="true" type="Application" factoryName="Application">
@@ -635,7 +616,11 @@
       <created>1355772256283</created>
       <updated>1355772256283</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="More parameters in the UI">
+      <created>1355776279107</created>
+      <updated>1355776279107</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
@@ -660,10 +645,10 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-4" y="-4" width="1928" height="1044" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32924226" sideWeight="0.6804009" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Changes" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32628062" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32516703" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.329582" sideWeight="0.67608476" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32924226" sideWeight="0.6804009" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -726,7 +711,7 @@
     <option name="MAXIMUM_HISTORY_ROWS" value="1000" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="More parameters in the UI" />
+    <option name="LAST_COMMIT_MESSAGE" value="Behave properly when bokeh radius &lt; pixel radius" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="false" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_FILES_UP_TO_DATE_BEFORE_COMMIT" value="false" />
@@ -754,6 +739,7 @@
     <MESSAGE value="Beginning of a UI to change parameter values!&#10;SharedParameterUpdate to notify of parameter changes" />
     <MESSAGE value="Show some useful info about GPU device and OpenCL version" />
     <MESSAGE value="More parameters in the UI" />
+    <MESSAGE value="Behave properly when bokeh radius &lt; pixel radius" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -775,22 +761,6 @@
         <state line="30" column="53" selection-start="938" selection-end="938" vertical-scroll-proportion="0.0">
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#1496#1753#0" expanded="true" />
-            <element signature="e#1742#1743#0" expanded="true" />
-            <element signature="e#1864#2120#0" expanded="true" />
-            <element signature="e#2109#2110#0" expanded="true" />
-            <element signature="e#2236#2629#0" expanded="true" />
-            <element signature="e#2618#2619#0" expanded="true" />
-            <element signature="e#2753#3151#0" expanded="true" />
-            <element signature="e#3140#3141#0" expanded="true" />
-            <element signature="e#3264#3519#0" expanded="true" />
-            <element signature="e#3508#3509#0" expanded="true" />
-            <element signature="e#3639#3899#0" expanded="true" />
-            <element signature="e#3888#3889#0" expanded="true" />
-            <element signature="e#4029#4294#0" expanded="true" />
-            <element signature="e#4283#4284#0" expanded="true" />
-            <element signature="e#4417#4680#0" expanded="true" />
-            <element signature="e#4669#4670#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -831,7 +801,7 @@
     </entry>
     <entry file="jar://$PROJECT_DIR$/lwjgl-debug.jar!/org/lwjgl/opencl/CL10.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="630" column="0" selection-start="46097" selection-end="46097" vertical-scroll-proportion="0.0">
+        <state line="630" column="0" selection-start="45989" selection-end="45989" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
@@ -846,13 +816,6 @@
     <entry file="file://$PROJECT_DIR$/src/GLDrawer.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="46" column="48" selection-start="1651" selection-end="1651" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/clCode/kernel.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="15" column="3" selection-start="455" selection-end="455" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
@@ -878,26 +841,17 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/ParametersUI.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="114" column="51" selection-start="4567" selection-end="4567" vertical-scroll-proportion="1.1537133">
+        <state line="114" column="51" selection-start="4567" selection-end="4567" vertical-scroll-proportion="0.0">
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#1496#1753#0" expanded="true" />
-            <element signature="e#1742#1743#0" expanded="true" />
-            <element signature="e#1864#2120#0" expanded="true" />
-            <element signature="e#2109#2110#0" expanded="true" />
-            <element signature="e#2236#2629#0" expanded="true" />
-            <element signature="e#2618#2619#0" expanded="true" />
-            <element signature="e#2753#3151#0" expanded="true" />
-            <element signature="e#3140#3141#0" expanded="true" />
-            <element signature="e#3264#3519#0" expanded="true" />
-            <element signature="e#3508#3509#0" expanded="true" />
-            <element signature="e#3639#3899#0" expanded="true" />
-            <element signature="e#3888#3889#0" expanded="true" />
-            <element signature="e#4029#4294#0" expanded="true" />
-            <element signature="e#4283#4284#0" expanded="true" />
-            <element signature="e#4417#4680#0" expanded="true" />
-            <element signature="e#4669#4670#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/clCode/kernel.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="21" column="157" selection-start="638" selection-end="638" vertical-scroll-proportion="-2.4034483">
+          <folding />
         </state>
       </provider>
     </entry>

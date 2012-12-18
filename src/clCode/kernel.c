@@ -194,6 +194,8 @@ kernel void createBokehMatrices(global float *blurMatrices, global int2 *positio
                 float entry = 0;
                 if(d < bokehRadius[0] - pixelRadius) {
                     entry = M_PI*pow(pixelRadius,2.0);
+                } else if(d < pixelRadius - bokehRadius[0]) {
+                    entry = M_PI*pow(bokehRadius[0],2.0);
                 } else if(d < bokehRadius[0] + pixelRadius) {
                     float bSegHeight = pow(d,2.0) - pow(pixelRadius,2.0) + pow(bokehRadius[0],2.0);
                     bSegHeight /= (2.0*d);
