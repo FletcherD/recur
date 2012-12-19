@@ -64,6 +64,8 @@ public class CLRunner implements Runnable {
     CLMem unsharpMatrix;
     CLMem gaussianStd;
     CLMem gaussianLookup;
+    CLMem colorParams;
+    private static final int CPARAMSSIZE = 26;
     
     CLMem randomData;
     Parameters parameters;
@@ -113,6 +115,7 @@ public class CLRunner implements Runnable {
         blurMatrix = clCreateBuffer(context, CL_MEM_READ_ONLY, BufferUtils.createFloatBuffer(parameters.matrixSize * parameters.matrixSize * parameters.pixelNum), null);
         unsharpMatrix = clCreateBuffer(context, CL_MEM_READ_ONLY, BufferUtils.createFloatBuffer(parameters.matrixSize * parameters.matrixSize), null);
         gaussianLookup = clCreateBuffer(context, CL_MEM_READ_ONLY, BufferUtils.createFloatBuffer(1024), null);
+        colorParams = clCreateBuffer(context, CL_MEM_READ_ONLY, BufferUtils.createFloatBuffer(CPARAMSSIZE), null);
         FloatBuffer fImage = BufferUtils.createFloatBuffer(parameters.pixelNum * 4);
         for(int i = 0; i < parameters.pixelNum ; i++) {
             float value = 0.5f;
@@ -134,6 +137,7 @@ public class CLRunner implements Runnable {
         setNoiseStdev();
         calculateBlurMatrices();
         calculateGaussianLookup();
+        createColorParamsMem();
         parameters.setDebugMatrix(getMatrices());
         sharedGlData.release();
     }
@@ -211,11 +215,6 @@ public class CLRunner implements Runnable {
         source = source.replaceAll("WIDTH", Integer.toString(parameters.width));
         source = source.replaceAll("HEIGHT", Integer.toString(parameters.height));
         source = source.replaceAll("MSIZE", Integer.toString(parameters.matrixSize));
-        source = source.replaceAll("BRIGHTNESS", parameters.arrayFormatC(parameters.brightness));
-        source = source.replaceAll("CONTRAST", parameters.arrayFormatC(parameters.contrast));
-        source = source.replaceAll("BORDER_COLOR_ORIG", parameters.arrayFormatC(parameters.borderColor));
-        source = source.replaceAll("BORDER_COLOR_GAMMA", parameters.arrayFormatC(parameters.getBorderColorGamma()));
-        source = source.replaceAll("GAMMA", Double.toString(parameters.gamma));
         if(parameters.noiseOn) {
             source = source.replaceAll("//NOISE_DEFINE", "#define NOISE");
         }
@@ -243,7 +242,9 @@ public class CLRunner implements Runnable {
         blurKernel.setArg(3, blurMatrix);
         blurKernel.setArg(4, randomData);
         blurKernel.setArg(5, gaussianLookup);
+        blurKernel.setArg(6, colorParams);
         gammaKernel.setArg(0, floatImage);
+        gammaKernel.setArg(1, colorParams);
         unsharpKernel.setArg(0, intermediateImage);
         unsharpKernel.setArg(1, floatImage);
         unsharpKernel.setArg(2, unsharpMatrix);
@@ -269,6 +270,12 @@ public class CLRunner implements Runnable {
         if(parameters.noiseStd != oldP.noiseStd) {
             setNoiseStdev();
             calculateGaussianLookup();
+        }
+        if(parameters.gamma != oldP.gamma ||
+           parameters.brightness[0] != oldP.brightness[0] ||
+           parameters.contrast[0] != oldP.contrast[0] ||
+           parameters.borderColor[0] != oldP.borderColor[0]) {
+            createColorParamsMem();
         }
     }
 
@@ -347,6 +354,20 @@ public class CLRunner implements Runnable {
         clFinish(iterateQueue);
         mBuf.get(bMatrix);
         return bMatrix;
+    }
+
+    public void createColorParamsMem() {
+        FloatBuffer cParamsBuf = BufferUtils.createFloatBuffer(CPARAMSSIZE);
+        cParamsBuf.put(parameters.center); cParamsBuf.put(0f); cParamsBuf.put(0f);
+        cParamsBuf.put(parameters.brightness); cParamsBuf.put(0f);
+        cParamsBuf.put(parameters.contrast); cParamsBuf.put(0f);
+        cParamsBuf.put(parameters.borderColor); cParamsBuf.put(0f);
+        cParamsBuf.put(parameters.getBorderColorGamma()); cParamsBuf.put(0f);
+        cParamsBuf.put(parameters.gamma); cParamsBuf.put(0f);
+        cParamsBuf.put(parameters.noiseStd);
+        cParamsBuf.rewind();
+        clEnqueueWriteBuffer(iterateQueue, colorParams, 1, 0, cParamsBuf, null, null);
+        clFinish(iterateQueue);
     }
 
     public void calculateBlurMatrices() {
