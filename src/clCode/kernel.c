@@ -1,17 +1,14 @@
 //NOISE_DEFINE
-__constant float2 windowCenter = {(float)WIDTH / 2.0, (float)HEIGHT / 2.0};
 __constant float3 centerColor = {0.5, 0.5, 0.5};
-__constant float3 borderColor = BORDER_COLOR_ORIG;
-__constant float3 borderColorGamma = BORDER_COLOR_GAMMA;
-__constant float3 brightness = BRIGHTNESS;
-__constant float3 contrast = CONTRAST;
 
-struct Params
+struct ColorParams
 {
+    float2 windowCenter;
     float3 brightness;
     float3 contrast;
     float3 borderColor;
-    float gamma;
+    float3 borderColorGamma;
+    float3 gamma;
     float noiseStd;
 } ;
 
@@ -24,38 +21,38 @@ float3 randomIntToColor(const uint color, __constant float *gaussianLookup)
     return r;
 }
 
-float3 adjustColor(const float3 colorIn, const float3 randomColor)
+float3 adjustColor(const float3 colorIn, const float3 randomColor, __constant struct ColorParams *cParams)
 {
     float3 color = ((colorIn - centerColor)) ;
-    color *= contrast;
+    color *= cParams->contrast;
     #ifdef NOISE
-    	color += brightness + centerColor + randomColor;
+    	color += cParams->brightness + centerColor + randomColor;
     #else
-    	color += brightness + centerColor;
+    	color += cParams->brightness + centerColor;
     #endif
 
     return clamp(color, 0.0f, 1.0f);
 }
 
-kernel void gammaApply(global float3 *in) {
+kernel void gammaApply(global float3 *in, __constant struct ColorParams *cParams) {
     unsigned int xid = get_global_id(0);
-    in[xid] = pow(in[xid], GAMMA);
+    in[xid] = pow(in[xid], cParams->gamma);
 }
 
-__inline__ float3 gammaCorrect(const float3 in) {
-    return pow(in, 1.0/GAMMA);
+__inline__ float3 gammaCorrect(const float3 in, __constant struct ColorParams *cParams) {
+    return pow(in, 1.0/(cParams->gamma));
 }
 
 kernel void iterate(global const float3 *in, global float3 *out, global const int2 *positions,
-					global const float *blurMatrices, global const uint *randomData, __constant float *gaussianLookup) {
+					global const float *blurMatrices, global const uint *randomData, __constant float *gaussianLookup, __constant struct ColorParams *cParams) {
     unsigned int xid = get_global_id(0);
     int2 matrixPos = positions[xid];
     if(matrixPos.x == 0xFFFF)
     {
         #ifdef NOISE
-            out[xid] = adjustColor(borderColor, randomIntToColor(randomData[xid], gaussianLookup));
+            out[xid] = adjustColor(cParams->borderColor, randomIntToColor(randomData[xid], gaussianLookup), cParams);
         #else
-            out[xid] = adjustColor(borderColor, 0);
+            out[xid] = adjustColor(cParams->borderColor, 0, cParams);
         #endif
         return;
     }
@@ -68,7 +65,7 @@ kernel void iterate(global const float3 *in, global float3 *out, global const in
         {
             for(int n = 0; n < MSIZE; n++) {
                 float matrixEntry = blurMatrices[matrixIdx+(n*MSIZE)+m];
-                color += borderColorGamma * matrixEntry;
+                color += cParams->borderColorGamma * matrixEntry;
             }
             continue;
         }
@@ -76,18 +73,18 @@ kernel void iterate(global const float3 *in, global float3 *out, global const in
             int y = matrixPos.y + n;
             float matrixEntry = blurMatrices[matrixIdx+(n*MSIZE)+m];
             if(y < 0 || y > HEIGHT-1) {
-                color += borderColorGamma * matrixEntry;
+                color += cParams->borderColorGamma * matrixEntry;
                 continue;
             }
             int newIdx = y * WIDTH + x;
             color += in[newIdx] * matrixEntry;
         }
     }
-    color = gammaCorrect(color);
+    color = gammaCorrect(color, cParams);
     #ifdef NOISE
-        out[xid] = adjustColor(color, randomIntToColor(randomData[xid], gaussianLookup));
+        out[xid] = adjustColor(color, randomIntToColor(randomData[xid], gaussianLookup), cParams);
     #else
-        out[xid] = adjustColor(color, 0);
+        out[xid] = adjustColor(color, 0, cParams);
     #endif
 }
 

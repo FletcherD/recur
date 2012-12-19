@@ -25,11 +25,12 @@ public class ParametersUI {
     private JSlider sliderUnsharpR;
     private JSlider sliderUnsharpWeight;
     private JSlider sliderNoise;
+    private JSlider sliderGamma;
     private JFormattedTextField formattedTextFieldScale;
 
     public ParametersUI(Recur.SharedParameterUpdate in) {
         pUpdate = in;
-        uiParameters = new Parameters();
+        uiParameters = new Parameters(in.parameters);
 
         JFrame frame = new JFrame("Parameters");
         frame.setContentPane(jPanel);
@@ -48,11 +49,11 @@ public class ParametersUI {
             }
         });
 
-        sliderRotate.setValue((int)(100*uiParameters.rotateAngle));
+        sliderRotate.setValue((int)(500.0*uiParameters.rotateAngle/Math.PI));
         sliderRotate.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                uiParameters.rotateAngle = ((double) sliderRotate.getValue()/100.0);
+                uiParameters.rotateAngle = (Math.PI * (double) sliderRotate.getValue()/500.0);
                 pUpdate.setUpdate(uiParameters);
             }
         });
@@ -61,7 +62,7 @@ public class ParametersUI {
         sliderContrast.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                double contrast = ((double) sliderContrast.getValue()/1000.0);
+                float contrast = ((float) sliderContrast.getValue()/1000.0f);
                 for(int i=0; i<uiParameters.contrast.length; i++) {
                     uiParameters.contrast[i] = contrast;
                 }
@@ -69,11 +70,11 @@ public class ParametersUI {
             }
         });
 
-        sliderBrightness.setValue((int) (100 * uiParameters.brightness[0]));
+        sliderBrightness.setValue((int) (1000 * uiParameters.brightness[0]));
         sliderBrightness.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                double contrast = ((double) sliderBrightness.getValue()/100.0);
+                float contrast = ((float)sliderBrightness.getValue()/1000.0f);
                 for(int i=0; i<uiParameters.brightness.length; i++) {
                     uiParameters.brightness[i] = contrast;
                 }
@@ -112,7 +113,7 @@ public class ParametersUI {
         sliderNoise.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                uiParameters.noiseStd = Math.pow(10, (double)sliderNoise.getValue()/100.0);
+                uiParameters.noiseStd = (float)Math.pow(10, (double)sliderNoise.getValue()/100.0);
                 pUpdate.setUpdate(uiParameters);
             }
         });

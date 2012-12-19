@@ -10,6 +10,7 @@ public class Parameters {
     int width;
     int height;
     int pixelNum;
+    float[] center;
 
     double rotateAngle;
     double scaleFactor;
@@ -19,36 +20,34 @@ public class Parameters {
     double unsharpRadius;
     double unsharpWeight;
 
-    double contrast[];
-    double brightness[];
-    double gamma;
+    float contrast[];
+    float brightness[];
+    float gamma[];
 
-    double borderColor[];
+    float borderColor[];
 
     boolean noiseOn;
-    double noiseStd;
+    float noiseStd;
 
     float[] debugMatrix = null;
 
-    boolean updated = false;
-    Parameters lastParameters;
-
     Parameters() {
-        width = 500;
-        height = 500;
+        width = 400;
+        height = 400;
         pixelNum = width*height;
-        rotateAngle = Math.PI * (1.0/5.0);
+        center = new float[]{(float)(Math.floor(width/2.0)+0.4), (float)(Math.floor(height/2.0)+0.2)};
+        rotateAngle = Math.PI * (1.0/6.0);
         scaleFactor = 1.75;
         matrixSize = 5;
         blurRadius = 0.5;
         unsharpRadius = 1.0;
         unsharpWeight = 1.0;
-        contrast = new double[]{1.0, 1.0, 1.0};
-        brightness = new double[]{0.0, 0.0, 0.0};
-        borderColor = new double[]{0.05, 0.03, 0.03};
-        gamma = 3.0;
+        contrast = new float[]{1.0f, 1.0f, 1.0f};
+        brightness = new float[]{0.0f, 0.0f, 0.0f};
+        borderColor = new float[]{0.05f, 0.03f, 0.03f};
+        gamma = new float[]{2.0f, 3.0f, 1.0f};
         noiseOn = true;
-        noiseStd = 0.001;
+        noiseStd = 0.001f;
     }
 
     Parameters(Parameters in){
@@ -56,24 +55,25 @@ public class Parameters {
         width = in.width;
         height = in.height;
         pixelNum = in.pixelNum;
+        center = in.center.clone();
         rotateAngle = in.rotateAngle;
         scaleFactor = in.scaleFactor;
         matrixSize = in.matrixSize;
         blurRadius = in.blurRadius;
         unsharpRadius = in.unsharpRadius;
         unsharpWeight = in.unsharpWeight;
-        contrast = in.contrast;
-        brightness = in.brightness;
-        borderColor = in.borderColor;
-        gamma = in.gamma;
+        contrast = in.contrast.clone();
+        brightness = in.brightness.clone();
+        borderColor = in.borderColor.clone();
+        gamma = in.gamma.clone();
         noiseOn = in.noiseOn;
         noiseStd = in.noiseStd;
     }
 
-    public String arrayFormatC(double in[]) {
+    public String arrayFormatC(float in[]) {
         String s = "{";
         for(int i = 0; i < in.length; i++) {
-            s = s + Double.toString(in[i]);
+            s = s + Float.toString(in[i]);
             if(i != in.length-1) {
                 s = s + ", ";
             }
@@ -82,10 +82,10 @@ public class Parameters {
         return s;
     }
 
-    public double[] getBorderColorGamma() {
-        double[] r = new double[borderColor.length];
+    public float[] getBorderColorGamma() {
+        float[] r = new float[borderColor.length];
         for(int i = 0; i < borderColor.length; i++) {
-            r[i] = Math.pow(borderColor[i], gamma);
+            r[i] = (float)Math.pow(borderColor[i], gamma[i]);
         }
         return r;
     }

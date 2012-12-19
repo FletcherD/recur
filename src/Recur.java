@@ -114,7 +114,7 @@ public class Recur {
 
         public synchronized void setUpdate(Parameters in){
             if(!update) {
-                oldParameters = new Parameters(parameters);
+                oldParameters = parameters;
             }
             parameters = new Parameters(in);
             update = true;
