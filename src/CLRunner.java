@@ -37,6 +37,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 
 public class CLRunner implements Runnable {
+    private static final int CPARAMSSIZE = 32;
     ImageData imageData;
 
     CLPlatform platform;
@@ -65,7 +66,6 @@ public class CLRunner implements Runnable {
     CLMem gaussianStd;
     CLMem gaussianLookup;
     CLMem colorParams;
-    private static final int CPARAMSSIZE = 26;
     
     CLMem randomData;
     Parameters parameters;
@@ -131,13 +131,13 @@ public class CLRunner implements Runnable {
         }
 
         buildKernel();
+        createColorParamsMem();
         setLinearTransform();
         setGaussianBlur();
         setUnsharp();
         setNoiseStdev();
         calculateBlurMatrices();
         calculateGaussianLookup();
-        createColorParamsMem();
         parameters.setDebugMatrix(getMatrices());
         sharedGlData.release();
     }
@@ -259,9 +259,11 @@ public class CLRunner implements Runnable {
         if(parameters.scaleFactor != oldP.scaleFactor ||
            parameters.rotateAngle != oldP.rotateAngle ||
            parameters.blurRadius != oldP.blurRadius) {
+            createColorParamsMem();
             setLinearTransform();
             setGaussianBlur();
             calculateBlurMatrices();
+            parameters.setDebugMatrix(getMatrices());
         }
         if(parameters.unsharpRadius != oldP.unsharpRadius ||
            parameters.unsharpWeight != oldP.unsharpWeight) {
@@ -364,7 +366,10 @@ public class CLRunner implements Runnable {
         cParamsBuf.put(parameters.borderColor); cParamsBuf.put(0f);
         cParamsBuf.put(parameters.getBorderColorGamma()); cParamsBuf.put(0f);
         cParamsBuf.put(parameters.gamma); cParamsBuf.put(0f);
-        cParamsBuf.put(parameters.noiseStd);
+        cParamsBuf.put(parameters.noiseStd); //cParamsBuf.put(0f);
+        cParamsBuf.put(parameters.blurRadius); //cParamsBuf.put(0f);
+        cParamsBuf.put(parameters.unsharpRadius); //cParamsBuf.put(0f);
+        cParamsBuf.put(parameters.unsharpWeight); //cParamsBuf.put(0f);
         cParamsBuf.rewind();
         clEnqueueWriteBuffer(iterateQueue, colorParams, 1, 0, cParamsBuf, null, null);
         clFinish(iterateQueue);
@@ -378,7 +383,7 @@ public class CLRunner implements Runnable {
         calcBlurKernel.setArg(0, blurMatrixTemp);
         calcBlurKernel.setArg(1, mPositions);
         calcBlurKernel.setArg(2, rMatrix);
-        calcBlurKernel.setArg(3, blurStd);
+        calcBlurKernel.setArg(3, colorParams);
         Util.checkCLError(clEnqueueNDRangeKernel(iterateQueue, calcBlurKernel, 1, null, kernelPixelWorkSize, null, null, null));
         clFinish(iterateQueue);
         Util.checkCLError(clEnqueueCopyBuffer(iterateQueue, blurMatrixTemp, blurMatrix, 0, 0, parameters.pixelNum * parameters.matrixSize * parameters.matrixSize*4, null, null));

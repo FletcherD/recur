@@ -16,9 +16,9 @@ public class Parameters {
     double scaleFactor;
 
     int matrixSize;
-    double blurRadius;
-    double unsharpRadius;
-    double unsharpWeight;
+    float blurRadius;
+    float unsharpRadius;
+    float unsharpWeight;
 
     float contrast[];
     float brightness[];
@@ -35,13 +35,13 @@ public class Parameters {
         width = 400;
         height = 400;
         pixelNum = width*height;
-        center = new float[]{(float)(Math.floor(width/2.0)+0.4), (float)(Math.floor(height/2.0)+0.2)};
+        center = new float[]{(float)(Math.floor(width/2.0)+0.0), (float)(Math.floor(height/2.0)+0.0)};
         rotateAngle = Math.PI * (1.0/6.0);
         scaleFactor = 1.75;
         matrixSize = 5;
-        blurRadius = 0.5;
-        unsharpRadius = 1.0;
-        unsharpWeight = 1.0;
+        blurRadius = 0.5f;
+        unsharpRadius = 1.0f;
+        unsharpWeight = 1.0f;
         contrast = new float[]{1.0f, 1.0f, 1.0f};
         brightness = new float[]{0.0f, 0.0f, 0.0f};
         borderColor = new float[]{0.05f, 0.03f, 0.03f};

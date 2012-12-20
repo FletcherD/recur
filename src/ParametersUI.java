@@ -86,7 +86,7 @@ public class ParametersUI {
         sliderBokehR.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                uiParameters.blurRadius = ((double) sliderBokehR.getValue()/100.0);
+                uiParameters.blurRadius = ((float) sliderBokehR.getValue()/100.0f);
                 pUpdate.setUpdate(uiParameters);
             }
         });
@@ -95,7 +95,7 @@ public class ParametersUI {
         sliderUnsharpR.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                uiParameters.unsharpRadius = ((double) sliderUnsharpR.getValue()/100.0);
+                uiParameters.unsharpRadius = ((float) sliderUnsharpR.getValue()/100.0f);
                 pUpdate.setUpdate(uiParameters);
             }
         });
@@ -104,7 +104,7 @@ public class ParametersUI {
         sliderUnsharpWeight.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                uiParameters.unsharpWeight = ((double) sliderUnsharpWeight.getValue()/100.0);
+                uiParameters.unsharpWeight = ((float) sliderUnsharpWeight.getValue()/100.0f);
                 pUpdate.setUpdate(uiParameters);
             }
         });

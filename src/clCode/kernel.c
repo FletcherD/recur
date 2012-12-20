@@ -3,13 +3,16 @@ __constant float3 centerColor = {0.5, 0.5, 0.5};
 
 struct ColorParams
 {
-    float2 windowCenter;
+    float2 center;
     float3 brightness;
     float3 contrast;
     float3 borderColor;
     float3 borderColorGamma;
     float3 gamma;
     float noiseStd;
+    float blurR;
+    float unsharpR;
+    float unsharpMag;
 } ;
 
 float3 randomIntToColor(const uint color, __constant float *gaussianLookup)
@@ -164,15 +167,12 @@ float chordArea(float r, float d)
     return area;
 }
 
-kernel void createBokehMatrices(global float *blurMatrices, global int2 *positions, __constant float *rMatrix, __constant float *bokehRadius) {
-    const float XCENT = floor(WIDTH/2.0)+0.2;
-    const float YCENT = floor(HEIGHT/2.0)+0.3;
-
+kernel void createBokehMatrices(global float *blurMatrices, global int2 *positions, __constant float *rMatrix, __constant struct ColorParams *cParams) {
     unsigned int xid = get_global_id(0);
-    float oldxPos = (float)(xid%WIDTH) - XCENT;
-    float yPos = (float)(xid/WIDTH) - YCENT;
-    float xPos = (oldxPos*rMatrix[1]) - (yPos*rMatrix[0]) + XCENT;
-          yPos = (oldxPos*rMatrix[0]) + (yPos*rMatrix[1]) + YCENT;
+    float oldxPos = (float)(xid%WIDTH) - cParams->center.x;
+    float yPos = (float)(xid/WIDTH) - cParams->center.y;
+    float xPos = (oldxPos*rMatrix[1]) - (yPos*rMatrix[0]) + cParams->center.x;
+          yPos = (oldxPos*rMatrix[0]) + (yPos*rMatrix[1]) + cParams->center.y;
     float pixelRadius = hypot(rMatrix[0], rMatrix[1])/2.0;
 
     if(xPos >= -(MSIZE) && xPos < WIDTH+(MSIZE) && yPos >= -(MSIZE) && yPos < HEIGHT+(MSIZE))
@@ -189,24 +189,24 @@ kernel void createBokehMatrices(global float *blurMatrices, global int2 *positio
                 float y = matrixPos.y+n - yPos;
                 float d = hypot(x, y);
                 float entry = 0;
-                if(d < bokehRadius[0] - pixelRadius) {
+                if(d <= cParams->blurR - pixelRadius) {
                     entry = M_PI*pow(pixelRadius,2.0);
-                } else if(d < pixelRadius - bokehRadius[0]) {
-                    entry = M_PI*pow(bokehRadius[0],2.0);
-                } else if(d < bokehRadius[0] + pixelRadius) {
-                    float bSegHeight = pow(d,2.0) - pow(pixelRadius,2.0) + pow(bokehRadius[0],2.0);
+                } else if(d <= pixelRadius - cParams->blurR) {
+                    entry = M_PI*pow(cParams->blurR,2.0);
+                } else if(d < cParams->blurR + pixelRadius) {
+                    float bSegHeight = pow(d,2.0) - pow(pixelRadius,2.0) + pow(cParams->blurR,2.0);
                     bSegHeight /= (2.0*d);
-                    entry=0;
-                    entry = chordArea(bokehRadius[0],bSegHeight) + chordArea(pixelRadius,d-bSegHeight);
+                    entry = chordArea(cParams->blurR,bSegHeight) + chordArea(pixelRadius,d-bSegHeight);
+                } else {
+                    continue;
                 }
-
                 blurMatrices[matrixIdx+(n*MSIZE)+m] = entry;
                 sum += entry;
             }
         }
         for(int m = 0; m < MSIZE; m++) {
             for(int n = 0; n < MSIZE; n++) {
-                blurMatrices[matrixIdx+(n*MSIZE)+m] /= 0.785 * (hypot(rMatrix[0], rMatrix[1])) * M_PI*pow(bokehRadius[0],2.0);
+                blurMatrices[matrixIdx+(n*MSIZE)+m] /= 0.785 * (hypot(rMatrix[0], rMatrix[1])) * M_PI*pow(cParams->blurR,2.0);
             }
         }
     }
