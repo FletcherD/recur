@@ -256,3 +256,20 @@ kernel void createGaussianLookup(global float *gaussianLookup, __constant float 
     float x = -xLim + (2*xLim/((float)(N-1)))*xid;
     gaussianLookup[xid] = sqrt(2.0f) * stdev[0] * erfinv(x);
 }
+
+
+
+kernel void findParamOffsets(global int *offsets) {
+    struct ColorParams cParams;
+    int i = 0;
+    offsets[i++] = (float*)(&(cParams.center)) - (float*)(&cParams);
+    offsets[i++] = (float*)(&(cParams.brightness)) - (float*)(&cParams);
+    offsets[i++] = (float*)(&(cParams.contrast)) - (float*)(&cParams);
+    offsets[i++] = (float*)(&(cParams.borderColor)) - (float*)(&cParams);
+    offsets[i++] = (float*)(&(cParams.borderColorGamma)) - (float*)(&cParams);
+    offsets[i++] = (float*)(&(cParams.gamma)) - (float*)(&cParams);
+    offsets[i++] = (float*)(&(cParams.noiseStd)) - (float*)(&cParams);
+    offsets[i++] = (float*)(&(cParams.blurR)) - (float*)(&cParams);
+    offsets[i++] = (float*)(&(cParams.unsharpR)) - (float*)(&cParams);
+    offsets[i++] = (float*)(&(cParams.unsharpMag)) - (float*)(&cParams);
+}

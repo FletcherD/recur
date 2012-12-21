@@ -35,7 +35,7 @@ public class Parameters {
         width = 400;
         height = 400;
         pixelNum = width*height;
-        center = new float[]{(float)(Math.floor(width/2.0)+0.0), (float)(Math.floor(height/2.0)+0.0)};
+        center = new float[]{(float)(Math.floor(width/2.0)+0.25), (float)(Math.floor(height/2.0)+0.25)};
         rotateAngle = Math.PI * (1.0/6.0);
         scaleFactor = 1.75;
         matrixSize = 5;

@@ -66,6 +66,7 @@ public class CLRunner implements Runnable {
     CLMem gaussianStd;
     CLMem gaussianLookup;
     CLMem colorParams;
+    int[] cParamOffsets;
     
     CLMem randomData;
     Parameters parameters;
@@ -131,6 +132,7 @@ public class CLRunner implements Runnable {
         }
 
         buildKernel();
+        findParamOffsets();
         createColorParamsMem();
         setLinearTransform();
         setGaussianBlur();
@@ -358,18 +360,36 @@ public class CLRunner implements Runnable {
         return bMatrix;
     }
 
+    public void findParamOffsets() {
+        IntBuffer err = BufferUtils.createIntBuffer(1);
+        CLKernel offsetKernel = clCreateKernel(program, "findParamOffsets", err);
+        Util.checkCLError(err.get(0));
+        IntBuffer offsetBuf = BufferUtils.createIntBuffer(12);
+        CLMem offsetMem = clCreateBuffer(context, CL_MEM_READ_WRITE, offsetBuf, null);
+        offsetKernel.setArg(0, offsetMem);
+        Util.checkCLError(clEnqueueTask(iterateQueue, offsetKernel, null, null));
+        clFinish(iterateQueue);
+        clEnqueueReadBuffer(iterateQueue, offsetMem, 1, 0, offsetBuf, null, null);
+        cParamOffsets = new int[12];
+        clFinish(iterateQueue);
+        clReleaseKernel(offsetKernel);
+        clReleaseMemObject(offsetMem);
+        offsetBuf.get(cParamOffsets);
+    }
+
     public void createColorParamsMem() {
         FloatBuffer cParamsBuf = BufferUtils.createFloatBuffer(CPARAMSSIZE);
-        cParamsBuf.put(parameters.center); cParamsBuf.put(0f); cParamsBuf.put(0f);
-        cParamsBuf.put(parameters.brightness); cParamsBuf.put(0f);
-        cParamsBuf.put(parameters.contrast); cParamsBuf.put(0f);
-        cParamsBuf.put(parameters.borderColor); cParamsBuf.put(0f);
-        cParamsBuf.put(parameters.getBorderColorGamma()); cParamsBuf.put(0f);
-        cParamsBuf.put(parameters.gamma); cParamsBuf.put(0f);
-        cParamsBuf.put(parameters.noiseStd); //cParamsBuf.put(0f);
-        cParamsBuf.put(parameters.blurRadius); //cParamsBuf.put(0f);
-        cParamsBuf.put(parameters.unsharpRadius); //cParamsBuf.put(0f);
-        cParamsBuf.put(parameters.unsharpWeight); //cParamsBuf.put(0f);
+        int i = 0;
+        cParamsBuf.position(cParamOffsets[i++]); cParamsBuf.put(parameters.center);
+        cParamsBuf.position(cParamOffsets[i++]); cParamsBuf.put(parameters.brightness);
+        cParamsBuf.position(cParamOffsets[i++]); cParamsBuf.put(parameters.contrast);
+        cParamsBuf.position(cParamOffsets[i++]); cParamsBuf.put(parameters.borderColor);
+        cParamsBuf.position(cParamOffsets[i++]); cParamsBuf.put(parameters.getBorderColorGamma());
+        cParamsBuf.position(cParamOffsets[i++]); cParamsBuf.put(parameters.gamma);
+        cParamsBuf.position(cParamOffsets[i++]); cParamsBuf.put(parameters.noiseStd);
+        cParamsBuf.position(cParamOffsets[i++]); cParamsBuf.put(parameters.blurRadius);
+        cParamsBuf.position(cParamOffsets[i++]); cParamsBuf.put(parameters.unsharpRadius);
+        cParamsBuf.position(cParamOffsets[i++]); cParamsBuf.put(parameters.unsharpWeight);
         cParamsBuf.rewind();
         clEnqueueWriteBuffer(iterateQueue, colorParams, 1, 0, cParamsBuf, null, null);
         clFinish(iterateQueue);
@@ -405,6 +425,7 @@ public class CLRunner implements Runnable {
         clFinish(iterateQueue);
         Util.checkCLError(clEnqueueCopyBuffer(iterateQueue, gaussianLookupTemp, gaussianLookup, 0, 0, 1024*4, null, null));
         clReleaseKernel(calcGaussianKernel);
+        clReleaseMemObject(gaussianLookupTemp);
         clFinish(iterateQueue);
     }
 
