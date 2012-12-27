@@ -38,7 +38,7 @@ import static org.lwjgl.opengl.Util.checkGLError;
 
         Display.setLocation((Display.getDisplayMode().getWidth() - parameters.width) / 2,
                 (Display.getDisplayMode().getHeight() - parameters.height) / 2);
-        Display.setDisplayMode(new DisplayMode(parameters.width, parameters.height));
+        Display.setDisplayMode(new DisplayMode(parameters.width*2, parameters.height*2));
         Display.setTitle("Recur");
         Display.setVSyncEnabled(true);
         Display.create();
@@ -128,7 +128,8 @@ import static org.lwjgl.opengl.Util.checkGLError;
                 imageData.readFrame();
             }
             if(Mouse.isButtonDown(1) && !mouseStatus[1]) {
-                int y = parameters.height - Mouse.getY();
+                int x = Mouse.getX() / (Display.getWidth() / parameters.width);
+                int y = (Display.getHeight() - Mouse.getY()) / (Display.getWidth() / parameters.width);
                 printMatrix(Mouse.getX(), y);
                 printPosition(Mouse.getX(), y);
             }

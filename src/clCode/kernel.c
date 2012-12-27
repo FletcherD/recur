@@ -198,6 +198,7 @@ kernel void createBokehMatrices(global float *blurMatrices, global int2 *positio
                     bSegHeight /= (2.0*d);
                     entry = chordArea(cParams->blurR,bSegHeight) + chordArea(pixelRadius,d-bSegHeight);
                 } else {
+                    blurMatrices[matrixIdx+(n*MSIZE)+m] = 0;
                     continue;
                 }
                 blurMatrices[matrixIdx+(n*MSIZE)+m] = entry;
