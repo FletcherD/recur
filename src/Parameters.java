@@ -32,12 +32,12 @@ public class Parameters {
     float[] debugMatrix = null;
 
     Parameters() {
-        width = 400;
-        height = 400;
+        width = 300;
+        height = 300;
         pixelNum = width*height;
         center = new float[]{(float)(Math.floor(width/2.0)+0.25), (float)(Math.floor(height/2.0)+0.25)};
-        rotateAngle = Math.PI * (1.0/6.0);
-        scaleFactor = 1.75;
+        rotateAngle = Math.PI * (1.0/5.0);
+        scaleFactor = 1.15;
         matrixSize = 5;
         blurRadius = 0.5f;
         unsharpRadius = 1.0f;
@@ -45,13 +45,12 @@ public class Parameters {
         contrast = new float[]{1.0f, 1.0f, 1.0f};
         brightness = new float[]{0.0f, 0.0f, 0.0f};
         borderColor = new float[]{0.05f, 0.03f, 0.03f};
-        gamma = new float[]{2.0f, 3.0f, 1.0f};
-        noiseOn = true;
+        gamma = new float[]{2.0f, 1.8f, 2.3f};
+        noiseOn = false;
         noiseStd = 0.001f;
     }
 
     Parameters(Parameters in){
-
         width = in.width;
         height = in.height;
         pixelNum = in.pixelNum;

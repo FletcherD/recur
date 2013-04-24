@@ -28,16 +28,16 @@ public class ParametersUI {
     private JSlider sliderGamma;
     private JFormattedTextField formattedTextFieldScale;
 
-    public ParametersUI(Recur.SharedParameterUpdate in) {
+    public ParametersUI(Recur.SharedParameterUpdate in, int mainWidth, int mainHeight) {
         pUpdate = in;
         uiParameters = new Parameters(in.parameters);
 
         JFrame frame = new JFrame("Parameters");
         frame.setContentPane(jPanel);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         frame.pack();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        frame.setLocation(screenSize.width/2 + uiParameters.width/2+5, screenSize.height/2 - frame.getHeight()/2);
+        frame.setLocation(screenSize.width/2 + mainWidth/2+5, screenSize.height/2 - frame.getHeight()/2);
         frame.setVisible(true);
 
         sliderScale.setValue((int)(100*uiParameters.scaleFactor));

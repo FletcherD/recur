@@ -55,6 +55,7 @@ public class Recur {
         private Drawable drawable;
         boolean initialized = false;
         boolean clWaiting = false;
+        boolean finished = false;
         public Lock lock = new ReentrantLock();
 
         public synchronized void set(Drawable d) {
@@ -99,6 +100,12 @@ public class Recur {
             Display.makeCurrent();
         }
 
+        public void setFinished() {
+            finished = true;
+        }
+        public boolean isFinished() {
+            return finished;
+        }
     }
     SharedGlData sharedGlData = new SharedGlData();
 
@@ -109,7 +116,6 @@ public class Recur {
 
         SharedParameterUpdate() {
             parameters = new Parameters();
-
         }
 
         public synchronized void setUpdate(Parameters in){
@@ -147,7 +153,9 @@ public class Recur {
             glThread.start();
         } catch (LWJGLException le) {
             le.printStackTrace();
-            System.out.println("Failed to initialize Recur.");
+            System.out.println("Failed to initialize OpenGL.\n" +
+                    "Press any key to quit.");
+            try{ System.in.read(); } catch(Exception e) {}
             return;
         }
 
@@ -157,17 +165,18 @@ public class Recur {
             clThread.start();
         } catch (Exception le) {
             le.printStackTrace();
-            System.out.println("Failed to initialize OpenCL.");
+            System.out.println("Failed to initialize OpenCL.\n" +
+                    "Press any key to quit.");
+            try{ System.in.read(); } catch(Exception e) {}
             System.exit(0);
         }
-        ParametersUI parametersUI = new ParametersUI(parameterUpdate);
+        ParametersUI parametersUI = new ParametersUI(parameterUpdate, glDrawer.getWidth(), glDrawer.getHeight());
 
-
-        while(glThread.isAlive()) {
-            try {
-                glThread.join();
-                return;
-            } catch (InterruptedException e) {}
+        while(glThread.isAlive() || clThread.isAlive()) {
+            //try {
+                //glThread.join();
+                //sharedGlData.setFinished();
+            //} catch (InterruptedException e) {}
         }
     }
 

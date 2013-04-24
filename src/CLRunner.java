@@ -155,7 +155,7 @@ public class CLRunner implements Runnable {
             return;
         }
         long startTime = System.currentTimeMillis();
-        while(status)
+        while(status && !sharedGlData.isFinished())
         {
             if(parameterUpdate.getUpdate()) {
                 changeParameters();
@@ -170,9 +170,11 @@ public class CLRunner implements Runnable {
                 frames = 0;
             }
         }
+        dispose();
     }
 
     public boolean flipBuffers() {
+        clFinish(randomQueue);
         clEnqueueNDRangeKernel(iterateQueue, gammaKernel, 1, null, kernelPixelWorkSize, null, null, null);
         clEnqueueNDRangeKernel(iterateQueue, blurKernel, 1, null, kernelPixelWorkSize, null, null, null);
         clEnqueueNDRangeKernel(iterateQueue, unsharpKernel, 1, null, kernelPixelWorkSize, null, null, null);
@@ -265,7 +267,7 @@ public class CLRunner implements Runnable {
             setLinearTransform();
             setGaussianBlur();
             calculateBlurMatrices();
-            parameters.setDebugMatrix(getMatrices());
+            //parameters.setDebugMatrix(getMatrices());
         }
         if(parameters.unsharpRadius != oldP.unsharpRadius ||
            parameters.unsharpWeight != oldP.unsharpWeight) {

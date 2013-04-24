@@ -23,24 +23,35 @@ import static org.lwjgl.opengl.Util.checkGLError;
     int textureID;
     boolean mouseStatus[] = { false, false };
     boolean keyStatus = false;
-    boolean runToggle = true;
+    boolean runToggle = false;
     Recur.SharedGlData sharedGlData;
 
     Parameters parameters;
+    int zoom;
 
     public GLDrawer(ImageData inImageData, Recur.SharedParameterUpdate inParameters, Recur.SharedGlData inShared) throws LWJGLException {
         parameters = inParameters.parameters;
         imageData = inImageData;
         sharedGlData = inShared;
+
+        DisplayMode[] modes = Display.getAvailableDisplayModes();
+        int maxWidth = 0;
+        int maxHeight = 0;
+        for (int i=0;i<modes.length;i++) {
+            DisplayMode current = modes[i];
+            maxWidth = Math.max(maxWidth, current.getWidth()-100);
+            maxHeight = Math.max(maxHeight, current.getHeight()-100);
+        }
+        zoom = (int)Math.floor(Math.min(maxWidth/parameters.width, maxHeight/parameters.height));
+        zoom = Math.max(zoom,1);
     }
 
     public void init() throws LWJGLException {
-
-        Display.setLocation((Display.getDisplayMode().getWidth() - parameters.width) / 2,
-                (Display.getDisplayMode().getHeight() - parameters.height) / 2);
-        Display.setDisplayMode(new DisplayMode(parameters.width*2, parameters.height*2));
+        Display.setLocation((Display.getDisplayMode().getWidth() - parameters.width*zoom) / 2,
+                (Display.getDisplayMode().getHeight() - parameters.height*zoom) / 2);
+        Display.setDisplayMode(new DisplayMode(parameters.width*zoom, parameters.height*zoom));
         Display.setTitle("Recur");
-        Display.setVSyncEnabled(true);
+        Display.setVSyncEnabled(false);
         Display.create();
         int totalMem = glGetInteger(0x9048 /*GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX*/);
         int availMem = glGetInteger(0x9049 /*GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX*/);
@@ -91,8 +102,6 @@ import static org.lwjgl.opengl.Util.checkGLError;
             return;
         }
         boolean closeRequested = false;
-        int frames = 0;
-        long startTime = System.currentTimeMillis();
         while (!closeRequested) {
             try {
                 sharedGlData.glAcquire();
@@ -139,15 +148,9 @@ import static org.lwjgl.opengl.Util.checkGLError;
             mouseStatus[0] = Mouse.isButtonDown(0);
             mouseStatus[1] = Mouse.isButtonDown(1);
             keyStatus = Keyboard.isKeyDown(Keyboard.KEY_SPACE);
-            /*frames++;
-            long timeUsed = System.currentTimeMillis() - startTime;
-            if (timeUsed > 2000) {
-                System.out.println(frames + " frames drawn in " + timeUsed / 1000f + " seconds = "
-                        + (frames / (timeUsed / 1000f)));
-                startTime = System.currentTimeMillis();
-                frames = 0;
-            }    */
         }
+        sharedGlData.setFinished();
+        imageData.readFrame();
     }
 
     private void printMatrix(int x, int y) {
@@ -171,5 +174,12 @@ import static org.lwjgl.opengl.Util.checkGLError;
         double xPos = (oldxPos*rMatrix[1]) - (yPos*rMatrix[0]) + XCENTER;
         yPos = (oldxPos*rMatrix[0]) + (yPos*rMatrix[1]) + YCENTER;
         System.out.format("%.2f , %.2f\n", xPos, yPos);
+    }
+
+    public int getWidth() {
+        return parameters.width*zoom;
+    }
+    public int getHeight() {
+        return parameters.height*zoom;
     }
 }
