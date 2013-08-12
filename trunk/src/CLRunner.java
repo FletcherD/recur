@@ -96,7 +96,7 @@ public class CLRunner implements Runnable {
         Drawable d = sharedGlData.get();
         CL.create();
         platform = CLPlatform.getPlatforms().get(0);
-        devices = platform.getDevices(CL_DEVICE_TYPE_GPU);
+        devices = platform.getDevices(CL_DEVICE_TYPE_ALL);
         IntBuffer err = BufferUtils.createIntBuffer(1);
         context = CLContext.create(platform, devices, null, d, err);
         Util.checkCLError(err.get(0));
@@ -109,14 +109,14 @@ public class CLRunner implements Runnable {
         pboMem[0] = CL10GL.clCreateFromGLBuffer(context, CL_MEM_WRITE_ONLY, imageData.getBuffer(0), null);
         pboMem[1] = CL10GL.clCreateFromGLBuffer(context, CL_MEM_WRITE_ONLY, imageData.getBuffer(1), null);
 
-        rMatrix = clCreateBuffer(context, CL_MEM_READ_ONLY, BufferUtils.createFloatBuffer(2), null);
-        mPositions = clCreateBuffer(context, CL_MEM_READ_WRITE, BufferUtils.createIntBuffer(parameters.pixelNum * 2), null);
-        blurStd = clCreateBuffer(context, CL_MEM_READ_ONLY, BufferUtils.createFloatBuffer(1), null);
-        gaussianStd = clCreateBuffer(context, CL_MEM_READ_ONLY, BufferUtils.createFloatBuffer(1), null);
-        blurMatrix = clCreateBuffer(context, CL_MEM_READ_ONLY, BufferUtils.createFloatBuffer(parameters.matrixSize * parameters.matrixSize * parameters.pixelNum), null);
-        unsharpMatrix = clCreateBuffer(context, CL_MEM_READ_ONLY, BufferUtils.createFloatBuffer(parameters.matrixSize * parameters.matrixSize), null);
-        gaussianLookup = clCreateBuffer(context, CL_MEM_READ_ONLY, BufferUtils.createFloatBuffer(1024), null);
-        colorParams = clCreateBuffer(context, CL_MEM_READ_ONLY, BufferUtils.createFloatBuffer(CPARAMSSIZE), null);
+        rMatrix = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, BufferUtils.createFloatBuffer(2), null);
+        mPositions = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, BufferUtils.createIntBuffer(parameters.pixelNum * 2), null);
+        blurStd = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, BufferUtils.createFloatBuffer(1), null);
+        gaussianStd = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, BufferUtils.createFloatBuffer(1), null);
+        blurMatrix = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, BufferUtils.createFloatBuffer(parameters.matrixSize * parameters.matrixSize * parameters.pixelNum), null);
+        unsharpMatrix = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, BufferUtils.createFloatBuffer(parameters.matrixSize * parameters.matrixSize), null);
+        gaussianLookup = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, BufferUtils.createFloatBuffer(1024), null);
+        colorParams = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, BufferUtils.createFloatBuffer(CPARAMSSIZE), null);
         FloatBuffer fImage = BufferUtils.createFloatBuffer(parameters.pixelNum * 4);
         for(int i = 0; i < parameters.pixelNum ; i++) {
             float value = 0.5f;
@@ -127,7 +127,7 @@ public class CLRunner implements Runnable {
         intermediateImage = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, fImage, null);
 
         if(parameters.noiseOn) {
-            randomData = clCreateBuffer(context, CL_MEM_READ_WRITE, BufferUtils.createLongBuffer(parameters.pixelNum/2), null);
+            randomData = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, BufferUtils.createLongBuffer(parameters.pixelNum/2), null);
             generateRandomData();
         }
 
@@ -367,7 +367,7 @@ public class CLRunner implements Runnable {
         CLKernel offsetKernel = clCreateKernel(program, "findParamOffsets", err);
         Util.checkCLError(err.get(0));
         IntBuffer offsetBuf = BufferUtils.createIntBuffer(12);
-        CLMem offsetMem = clCreateBuffer(context, CL_MEM_READ_WRITE, offsetBuf, null);
+        CLMem offsetMem = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, offsetBuf, null);
         offsetKernel.setArg(0, offsetMem);
         Util.checkCLError(clEnqueueTask(iterateQueue, offsetKernel, null, null));
         clFinish(iterateQueue);
@@ -401,7 +401,7 @@ public class CLRunner implements Runnable {
         IntBuffer err = BufferUtils.createIntBuffer(1);
         CLKernel calcBlurKernel = clCreateKernel(program, "createBokehMatrices", err);
         Util.checkCLError(err.get(0));
-        CLMem blurMatrixTemp = clCreateBuffer(context, CL_MEM_WRITE_ONLY, BufferUtils.createFloatBuffer(parameters.matrixSize * parameters.matrixSize * parameters.pixelNum), null);
+        CLMem blurMatrixTemp = clCreateBuffer(context, CL_MEM_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, BufferUtils.createFloatBuffer(parameters.matrixSize * parameters.matrixSize * parameters.pixelNum), null);
         calcBlurKernel.setArg(0, blurMatrixTemp);
         calcBlurKernel.setArg(1, mPositions);
         calcBlurKernel.setArg(2, rMatrix);
@@ -418,7 +418,7 @@ public class CLRunner implements Runnable {
         IntBuffer err = BufferUtils.createIntBuffer(1);
         CLKernel calcGaussianKernel = clCreateKernel(program, "createGaussianLookup", err);
         Util.checkCLError(err.get(0));
-        CLMem gaussianLookupTemp = clCreateBuffer(context, CL_MEM_WRITE_ONLY, BufferUtils.createFloatBuffer(1024), null);
+        CLMem gaussianLookupTemp = clCreateBuffer(context, CL_MEM_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, BufferUtils.createFloatBuffer(1024), null);
         calcGaussianKernel.setArg(0, gaussianLookupTemp);
         calcGaussianKernel.setArg(1, gaussianStd);
         PointerBuffer kernelGaussianWorkSize = BufferUtils.createPointerBuffer(1);
