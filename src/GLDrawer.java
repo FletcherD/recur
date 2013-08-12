@@ -53,9 +53,9 @@ import static org.lwjgl.opengl.Util.checkGLError;
         Display.setTitle("Recur");
         Display.setVSyncEnabled(false);
         Display.create();
-        int totalMem = glGetInteger(0x9048 /*GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX*/);
-        int availMem = glGetInteger(0x9049 /*GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX*/);
-        System.out.println("OpenGL Video Memory: " + availMem + " / " + totalMem + " kB available");
+//        int totalMem = glGetInteger(0x9048 /*GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX*/);
+//        int availMem = glGetInteger(0x9049 /*GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX*/);
+//        System.out.println("OpenGL Video Memory: " + availMem + " / " + totalMem + " kB available");
 
         glEnable(GL_TEXTURE_2D);
         glDisable(GL_DEPTH_TEST);
