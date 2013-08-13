@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp spec="1.0+" codebase=
+"http://fletcherd.github.io/recur" 
+    href="recur.jnlp">
+    <information>
+        <title>Recur</title>
+        <vendor>Fletcher Dostie</vendor>
+    </information>
+    <resources>
+        <!-- Application Resources -->
+        <j2se version="1.7+"
+              href="http://java.sun.com/products/autodl/j2se"/>
+        <jar href="Recur.jar"
+            main="true" />
+
+    </resources>
+    <application-desc
+         name="Recur"
+         main-class=
+           "Recur">
+     </application-desc>
+     <update check="background"/>
+</jnlp>        
