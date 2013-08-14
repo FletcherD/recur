@@ -4,6 +4,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.*;
 
+import javax.swing.*;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -28,12 +29,15 @@ import static org.lwjgl.opengl.Util.checkGLError;
 
     Parameters parameters;
     int zoom;
+    boolean initialized = false;
 
-    public GLDrawer(ImageData inImageData, Recur.SharedParameterUpdate inParameters, Recur.SharedGlData inShared) throws LWJGLException {
+    public GLDrawer(ImageData inImageData, Recur.SharedParameterUpdate inParameters, Recur.SharedGlData inShared) {
         parameters = inParameters.parameters;
         imageData = inImageData;
         sharedGlData = inShared;
+    }
 
+    public void init() throws LWJGLException {
         DisplayMode[] modes = Display.getAvailableDisplayModes();
         int maxWidth = 0;
         int maxHeight = 0;
@@ -44,18 +48,18 @@ import static org.lwjgl.opengl.Util.checkGLError;
         }
         zoom = (int)Math.floor(Math.min(maxWidth/parameters.width, maxHeight/parameters.height));
         zoom = Math.max(zoom,1);
-    }
 
-    public void init() throws LWJGLException {
         Display.setLocation((Display.getDisplayMode().getWidth() - parameters.width*zoom) / 2,
                 (Display.getDisplayMode().getHeight() - parameters.height*zoom) / 2);
         Display.setDisplayMode(new DisplayMode(parameters.width*zoom, parameters.height*zoom));
         Display.setTitle("Recur");
         Display.setVSyncEnabled(false);
         Display.create();
-        int totalMem = glGetInteger(0x9048 /*GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX*/);
-        int availMem = glGetInteger(0x9049 /*GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX*/);
-        System.out.println("OpenGL Video Memory: " + availMem + " / " + totalMem + " kB available");
+
+        initialized = true;
+//        int totalMem = glGetInteger(0x9048 /*GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX*/);
+//        int availMem = glGetInteger(0x9049 /*GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX*/);
+//        System.out.println("OpenGL Video Memory: " + availMem + " / " + totalMem + " kB available");
 
         glEnable(GL_TEXTURE_2D);
         glDisable(GL_DEPTH_TEST);
@@ -97,8 +101,8 @@ import static org.lwjgl.opengl.Util.checkGLError;
         try {
             init();
         } catch (LWJGLException l) {
+            JOptionPane.showMessageDialog(new JFrame(), l.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             l.printStackTrace();
-            System.out.println("Failed to initialize Recur.");
             return;
         }
         boolean closeRequested = false;
@@ -106,6 +110,7 @@ import static org.lwjgl.opengl.Util.checkGLError;
             try {
                 sharedGlData.glAcquire();
             } catch (LWJGLException e) {
+                JOptionPane.showMessageDialog(new JFrame(), e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 e.printStackTrace();
                 return;
             }
@@ -181,5 +186,8 @@ import static org.lwjgl.opengl.Util.checkGLError;
     }
     public int getHeight() {
         return parameters.height*zoom;
+    }
+    public boolean isInitialized() {
+        return initialized;
     }
 }

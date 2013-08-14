@@ -19,36 +19,9 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="jdk" jdkName="1.7" jdkType="JavaSDK" />
     <orderEntry type="module-library">
-      <library name="lwjgl_test.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lwjgl_test.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="lwjgl_util_applet.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lwjgl_util_applet.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
       <library name="lwjgl_util.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/lwjgl_util.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="lwjgl-debug.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lwjgl-debug.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

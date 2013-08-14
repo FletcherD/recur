@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Blur.iml" filepath="$PROJECT_DIR$/Blur.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Recur.iml" filepath="$PROJECT_DIR$/Recur.iml" />
     </modules>
   </component>
 </project>

@@ -145,45 +145,20 @@ public class Recur {
      *
      */
     private void execute() {
+        imageData = new ImageData();
 
-        try {
-            imageData = new ImageData();
-            glDrawer = new GLDrawer(imageData, parameterUpdate, sharedGlData);
-            glThread = new Thread((glDrawer));
-            glThread.start();
-        } catch (LWJGLException le) {
-            le.printStackTrace();
-            System.out.println("Failed to initialize OpenGL.\n" +
-                    "Press any key to quit.");
-            try{ System.in.read(); } catch(Exception e) {}
-            return;
-        }
+        glDrawer = new GLDrawer(imageData, parameterUpdate, sharedGlData);
+        glThread = new Thread((glDrawer));
+        glThread.start();
 
-        try {
-            clRunner = new CLRunner(imageData, parameterUpdate, sharedGlData);
-            clThread = new Thread(clRunner);
-            clThread.start();
-        } catch (Exception le) {
-            le.printStackTrace();
-            System.out.println("Failed to initialize OpenCL.\n" +
-                    "Press any key to quit.");
-            try{ System.in.read(); } catch(Exception e) {}
-            System.exit(0);
-        }
+        clRunner = new CLRunner(imageData, parameterUpdate, sharedGlData);
+        clThread = new Thread(clRunner);
+        clThread.start();
+
+        while(!glDrawer.isInitialized()) {}
         ParametersUI parametersUI = new ParametersUI(parameterUpdate, glDrawer.getWidth(), glDrawer.getHeight());
 
-        while(glThread.isAlive() || clThread.isAlive()) {
-            //try {
-                //glThread.join();
-                //sharedGlData.setFinished();
-            //} catch (InterruptedException e) {}
-        }
+        while(glThread.isAlive() && clThread.isAlive()) {}
     }
-
-    /**
-     *
-     */
-
-
 
 }

@@ -37,7 +37,7 @@ public class ParametersUI {
         frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         frame.pack();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        frame.setLocation(screenSize.width/2 + mainWidth/2+5, screenSize.height/2 - frame.getHeight()/2);
+        frame.setLocation(screenSize.width/2 + mainWidth/2 + 20, screenSize.height/2 - frame.getHeight()/2);
         frame.setVisible(true);
 
         sliderScale.setValue((int)(100*uiParameters.scaleFactor));

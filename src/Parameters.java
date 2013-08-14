@@ -46,7 +46,7 @@ public class Parameters {
         brightness = new float[]{0.0f, 0.0f, 0.0f};
         borderColor = new float[]{0.05f, 0.03f, 0.03f};
         gamma = new float[]{2.0f, 1.8f, 2.3f};
-        noiseOn = false;
+        noiseOn = true;
         noiseStd = 0.001f;
     }
 
@@ -67,6 +67,10 @@ public class Parameters {
         gamma = in.gamma.clone();
         noiseOn = in.noiseOn;
         noiseStd = in.noiseStd;
+    }
+
+    public void serialize() {
+        //com.sun.org.apache.xerces.internal.impl.dv.util.Base64.encode()
     }
 
     public String arrayFormatC(float in[]) {
