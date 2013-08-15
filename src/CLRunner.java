@@ -99,9 +99,8 @@ public class CLRunner implements Runnable {
         CL.create();
         platform = CLPlatform.getPlatforms().get(0);
         devices = platform.getDevices(CL_DEVICE_TYPE_GPU);
-        if(devices.isEmpty() || true) {
-            throw new Exception("Recur can't run because you don't have a graphics card that supports OpenCL. \n" +
-                    "I'm sorry this couldn't work out. ");
+        if(devices == null || devices.isEmpty()) {
+            throw new Exception("Recur can't run because you don't have a graphics card that supports OpenCL. ");
         }
         IntBuffer err = BufferUtils.createIntBuffer(1);
         context = CLContext.create(platform, devices, null, d, err);

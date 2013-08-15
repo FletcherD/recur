@@ -2,9 +2,8 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.text.NumberFormat;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * Created with IntelliJ IDEA.
@@ -19,13 +18,17 @@ public class ParametersUI {
     private JSlider sliderScale;
     private JPanel jPanel;
     private JSlider sliderRotate;
-    private JSlider sliderContrast;
+    private JSlider sliderContrastR;
     private JSlider sliderBrightness;
     private JSlider sliderBokehR;
     private JSlider sliderUnsharpR;
     private JSlider sliderUnsharpWeight;
     private JSlider sliderNoise;
-    private JSlider sliderGamma;
+    private JEditorPane parametersField;
+    private JButton importButton;
+    private JButton exportButton;
+    private JSlider sliderContrastG;
+    private JSlider sliderContrastB;
     private JFormattedTextField formattedTextFieldScale;
 
     public ParametersUI(Recur.SharedParameterUpdate in, int mainWidth, int mainHeight) {
@@ -40,7 +43,8 @@ public class ParametersUI {
         frame.setLocation(screenSize.width/2 + mainWidth/2 + 20, screenSize.height/2 - frame.getHeight()/2);
         frame.setVisible(true);
 
-        sliderScale.setValue((int)(100*uiParameters.scaleFactor));
+        updateSliders();
+
         sliderScale.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
@@ -49,7 +53,6 @@ public class ParametersUI {
             }
         });
 
-        sliderRotate.setValue((int)(500.0*uiParameters.rotateAngle/Math.PI));
         sliderRotate.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
@@ -58,11 +61,10 @@ public class ParametersUI {
             }
         });
 
-        sliderContrast.setValue((int)(1000*uiParameters.contrast[0]));
-        sliderContrast.addChangeListener(new ChangeListener() {
+        sliderContrastR.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                float contrast = ((float) sliderContrast.getValue()/1000.0f);
+                float contrast = ((float) sliderContrastR.getValue()/1000.0f);
                 for(int i=0; i<uiParameters.contrast.length; i++) {
                     uiParameters.contrast[i] = contrast;
                 }
@@ -70,7 +72,6 @@ public class ParametersUI {
             }
         });
 
-        sliderBrightness.setValue((int) (1000 * uiParameters.brightness[0]));
         sliderBrightness.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
@@ -82,7 +83,6 @@ public class ParametersUI {
             }
         });
 
-        sliderBokehR.setValue((int) (100 * uiParameters.blurRadius));
         sliderBokehR.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
@@ -91,7 +91,6 @@ public class ParametersUI {
             }
         });
 
-        sliderUnsharpR.setValue((int) (100 * uiParameters.unsharpRadius));
         sliderUnsharpR.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
@@ -100,7 +99,6 @@ public class ParametersUI {
             }
         });
 
-        sliderUnsharpWeight.setValue((int) (100 * uiParameters.unsharpWeight));
         sliderUnsharpWeight.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
@@ -109,7 +107,6 @@ public class ParametersUI {
             }
         });
 
-        sliderNoise.setValue((int) (Math.log10(uiParameters.noiseStd) * 100.0));
         sliderNoise.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
@@ -117,5 +114,30 @@ public class ParametersUI {
                 pUpdate.setUpdate(uiParameters);
             }
         });
+        exportButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                parametersField.setText(uiParameters.serialize());
+            }
+        });
+        importButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                uiParameters.deserialize(parametersField.getText());
+                updateSliders();
+                pUpdate.setUpdate(uiParameters);
+            }
+        });
+    }
+
+    private void updateSliders() {
+        sliderRotate.setValue((int)(500.0*uiParameters.rotateAngle/Math.PI));
+        sliderScale.setValue((int)(100*uiParameters.scaleFactor));
+        sliderContrastR.setValue((int)(1000*uiParameters.contrast[0]));
+        sliderBrightness.setValue((int) (1000 * uiParameters.brightness[0]));
+        sliderBokehR.setValue((int) (100 * uiParameters.blurRadius));
+        sliderUnsharpR.setValue((int) (100 * uiParameters.unsharpRadius));
+        sliderUnsharpWeight.setValue((int) (100 * uiParameters.unsharpWeight));
+        sliderNoise.setValue((int) (Math.log10(uiParameters.noiseStd) * 100.0));
     }
 }

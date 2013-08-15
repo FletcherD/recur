@@ -1,3 +1,8 @@
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 /**
  * Created with IntelliJ IDEA.
  * User: fletcher
@@ -6,16 +11,17 @@
  * To change this template use File | Settings | File Templates.
  */
 
-public class Parameters {
-    int width;
-    int height;
-    int pixelNum;
+public class Parameters implements java.io.Serializable
+{
+    transient int width;
+    transient int height;
+    transient int pixelNum;
     float[] center;
 
     double rotateAngle;
     double scaleFactor;
 
-    int matrixSize;
+    transient int matrixSize;
     float blurRadius;
     float unsharpRadius;
     float unsharpWeight;
@@ -24,12 +30,12 @@ public class Parameters {
     float brightness[];
     float gamma[];
 
-    float borderColor[];
+    transient float borderColor[];
 
-    boolean noiseOn;
+    transient boolean noiseOn;
     float noiseStd;
 
-    float[] debugMatrix = null;
+    transient float[] debugMatrix = null;
 
     Parameters() {
         width = 300;
@@ -51,6 +57,10 @@ public class Parameters {
     }
 
     Parameters(Parameters in){
+        clone(in);
+    }
+
+    public void clone(Parameters in){
         width = in.width;
         height = in.height;
         pixelNum = in.pixelNum;
@@ -63,14 +73,41 @@ public class Parameters {
         unsharpWeight = in.unsharpWeight;
         contrast = in.contrast.clone();
         brightness = in.brightness.clone();
-        borderColor = in.borderColor.clone();
+        if(borderColor != null)
+            borderColor = in.borderColor.clone();
         gamma = in.gamma.clone();
         noiseOn = in.noiseOn;
         noiseStd = in.noiseStd;
     }
 
-    public void serialize() {
-        //com.sun.org.apache.xerces.internal.impl.dv.util.Base64.encode()
+    public String serialize() {
+        try{
+            ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+            ObjectOutputStream objectStream = new ObjectOutputStream(outStream);
+            objectStream.writeObject(this);
+            String paramString =
+                com.sun.org.apache.xerces.internal.impl.dv.util.Base64.encode(outStream.toByteArray());
+            return paramString;
+        }catch(java.io.IOException i)
+        {
+            i.printStackTrace();
+            return null;
+        }
+    }
+
+    public void deserialize(String in) {
+        try{
+            byte[] byteArray =
+                com.sun.org.apache.xerces.internal.impl.dv.util.Base64.decode(in);
+            ByteArrayInputStream inStream = new ByteArrayInputStream(byteArray);
+            ObjectInputStream objectStream = new ObjectInputStream(inStream);
+            Parameters p = (Parameters) objectStream.readObject();
+            clone(p);
+        }catch(Exception i)
+        {
+            i.printStackTrace();
+            return;
+        }
     }
 
     public String arrayFormatC(float in[]) {
