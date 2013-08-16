@@ -19,16 +19,22 @@ public class ParametersUI {
     private JPanel jPanel;
     private JSlider sliderRotate;
     private JSlider sliderContrastR;
-    private JSlider sliderBrightness;
-    private JSlider sliderBokehR;
-    private JSlider sliderUnsharpR;
+    private JSlider sliderContrastG;
+    private JSlider sliderContrastB;
+    private JSlider sliderBrightnessR;
+    private JSlider sliderBokehRadius;
+    private JSlider sliderUnsharpRadius;
     private JSlider sliderUnsharpWeight;
     private JSlider sliderNoise;
     private JEditorPane parametersField;
     private JButton importButton;
     private JButton exportButton;
-    private JSlider sliderContrastG;
-    private JSlider sliderContrastB;
+    private JSlider sliderBrightnessG;
+    private JSlider sliderBrightnessB;
+    private JSlider sliderGammaR;
+    private JSlider sliderGammaG;
+    private JSlider sliderGammaB;
+    private JPanel gammaPanel;
     private JFormattedTextField formattedTextFieldScale;
 
     public ParametersUI(Recur.SharedParameterUpdate in, int mainWidth, int mainHeight) {
@@ -62,20 +68,57 @@ public class ParametersUI {
         });
 
         sliderContrastR.addChangeListener(new ChangeListener() {
-            @Override
             public void stateChanged(ChangeEvent e) {
-                float contrast = ((float) sliderContrastR.getValue()/1000.0f);
-                for(int i=0; i<uiParameters.contrast.length; i++) {
-                    uiParameters.contrast[i] = contrast;
-                }
-                pUpdate.setUpdate(uiParameters);
+                updateContrast();
+            }
+        });
+        sliderContrastG.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                updateContrast();
+            }
+        });
+        sliderContrastB.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                updateContrast();
             }
         });
 
-        sliderBrightness.addChangeListener(new ChangeListener() {
+        sliderBrightnessR.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                updateBrightness();
+            }
+        });
+        sliderBrightnessG.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                updateBrightness();
+            }
+        });
+        sliderBrightnessB.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                updateBrightness();
+            }
+        });
+
+        sliderGammaR.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                updateGamma();
+            }
+        });
+        sliderGammaG.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                updateGamma();
+            }
+        });
+        sliderGammaB.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                updateGamma();
+            }
+        });
+
+        sliderBrightnessR.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                float contrast = ((float)sliderBrightness.getValue()/1000.0f);
+                float contrast = ((float) sliderBrightnessR.getValue()/1000.0f);
                 for(int i=0; i<uiParameters.brightness.length; i++) {
                     uiParameters.brightness[i] = contrast;
                 }
@@ -83,18 +126,18 @@ public class ParametersUI {
             }
         });
 
-        sliderBokehR.addChangeListener(new ChangeListener() {
+        sliderBokehRadius.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                uiParameters.blurRadius = ((float) sliderBokehR.getValue()/100.0f);
+                uiParameters.blurRadius = ((float) sliderBokehRadius.getValue() / 100.0f);
                 pUpdate.setUpdate(uiParameters);
             }
         });
 
-        sliderUnsharpR.addChangeListener(new ChangeListener() {
+        sliderUnsharpRadius.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                uiParameters.unsharpRadius = ((float) sliderUnsharpR.getValue()/100.0f);
+                uiParameters.unsharpRadius = ((float) sliderUnsharpRadius.getValue() / 100.0f);
                 pUpdate.setUpdate(uiParameters);
             }
         });
@@ -110,7 +153,7 @@ public class ParametersUI {
         sliderNoise.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                uiParameters.noiseStd = (float)Math.pow(10, (double)sliderNoise.getValue()/100.0);
+                uiParameters.noiseStd = (float) Math.pow(10, (double) sliderNoise.getValue() / 100.0);
                 pUpdate.setUpdate(uiParameters);
             }
         });
@@ -130,13 +173,44 @@ public class ParametersUI {
         });
     }
 
+    private void updateContrast() {
+        uiParameters.contrast[0] = ((float) sliderContrastR.getValue()/1000.0f);
+        uiParameters.contrast[1] = ((float) sliderContrastG.getValue()/1000.0f);
+        uiParameters.contrast[2] = ((float) sliderContrastB.getValue()/1000.0f);
+        pUpdate.setUpdate(uiParameters);
+    }
+    private void updateBrightness() {
+        uiParameters.brightness[0] = ((float) sliderBrightnessR.getValue()/1000.0f);
+        uiParameters.brightness[1] = ((float) sliderBrightnessG.getValue()/1000.0f);
+        uiParameters.brightness[2] = ((float) sliderBrightnessB.getValue()/1000.0f);
+        pUpdate.setUpdate(uiParameters);
+    }
+    private void updateGamma() {
+        uiParameters.gamma[0] = ((float) sliderGammaR.getValue()/1000.0f);
+        uiParameters.gamma[1] = ((float) sliderGammaG.getValue()/1000.0f);
+        uiParameters.gamma[2] = ((float) sliderGammaB.getValue()/1000.0f);
+        pUpdate.setUpdate(uiParameters);
+    }
+
     private void updateSliders() {
         sliderRotate.setValue((int)(500.0*uiParameters.rotateAngle/Math.PI));
         sliderScale.setValue((int)(100*uiParameters.scaleFactor));
+
         sliderContrastR.setValue((int)(1000*uiParameters.contrast[0]));
-        sliderBrightness.setValue((int) (1000 * uiParameters.brightness[0]));
-        sliderBokehR.setValue((int) (100 * uiParameters.blurRadius));
-        sliderUnsharpR.setValue((int) (100 * uiParameters.unsharpRadius));
+        sliderContrastG.setValue((int)(1000*uiParameters.contrast[1]));
+        sliderContrastB.setValue((int)(1000*uiParameters.contrast[2]));
+
+        sliderBrightnessR.setValue((int)(1000*uiParameters.brightness[0]));
+        sliderBrightnessG.setValue((int)(1000*uiParameters.brightness[1]));
+        sliderBrightnessB.setValue((int)(1000*uiParameters.brightness[2]));
+
+        sliderGammaR.setValue((int)(1000*uiParameters.gamma[0]));
+        sliderGammaG.setValue((int)(1000*uiParameters.gamma[1]));
+        sliderGammaB.setValue((int)(1000*uiParameters.gamma[2]));
+
+        sliderBrightnessR.setValue((int) (1000 * uiParameters.brightness[0]));
+        sliderBokehRadius.setValue((int) (100 * uiParameters.blurRadius));
+        sliderUnsharpRadius.setValue((int) (100 * uiParameters.unsharpRadius));
         sliderUnsharpWeight.setValue((int) (100 * uiParameters.unsharpWeight));
         sliderNoise.setValue((int) (Math.log10(uiParameters.noiseStd) * 100.0));
     }

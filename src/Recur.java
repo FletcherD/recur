@@ -151,14 +151,13 @@ public class Recur {
         glThread = new Thread((glDrawer));
         glThread.start();
 
-        /*clRunner = new CLRunner(imageData, parameterUpdate, sharedGlData);
+        clRunner = new CLRunner(imageData, parameterUpdate, sharedGlData);
         clThread = new Thread(clRunner);
         clThread.start();
-                         */
-        while(!glDrawer.isInitialized()) {}
+
         ParametersUI parametersUI = new ParametersUI(parameterUpdate, glDrawer.getWidth(), glDrawer.getHeight());
 
-        while(glThread.isAlive()/* && clThread.isAlive()*/) {}
+        while(glThread.isAlive() && clThread.isAlive()) {}
     }
 
 }

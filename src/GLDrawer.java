@@ -35,19 +35,23 @@ import static org.lwjgl.opengl.Util.checkGLError;
         parameters = inParameters.parameters;
         imageData = inImageData;
         sharedGlData = inShared;
+        try{
+            DisplayMode[] modes = Display.getAvailableDisplayModes();
+            int maxWidth = 0;
+            int maxHeight = 0;
+            for (int i=0;i<modes.length;i++) {
+                DisplayMode current = modes[i];
+                maxWidth = Math.max(maxWidth, current.getWidth()-100);
+                maxHeight = Math.max(maxHeight, current.getHeight()-100);
+            }
+            zoom = (int)Math.floor(Math.min(maxWidth/parameters.width, maxHeight/parameters.height));
+            zoom = Math.max(zoom,1);
+        } catch(Exception i) {
+            i.printStackTrace();
+        }
     }
 
     public void init() throws LWJGLException {
-        DisplayMode[] modes = Display.getAvailableDisplayModes();
-        int maxWidth = 0;
-        int maxHeight = 0;
-        for (int i=0;i<modes.length;i++) {
-            DisplayMode current = modes[i];
-            maxWidth = Math.max(maxWidth, current.getWidth()-100);
-            maxHeight = Math.max(maxHeight, current.getHeight()-100);
-        }
-        zoom = (int)Math.floor(Math.min(maxWidth/parameters.width, maxHeight/parameters.height));
-        zoom = Math.max(zoom,1);
 
         Display.setLocation((Display.getDisplayMode().getWidth() - parameters.width*zoom) / 2,
                 (Display.getDisplayMode().getHeight() - parameters.height*zoom) / 2);
