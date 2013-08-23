@@ -120,9 +120,9 @@ public class Recur {
 
         public synchronized void setUpdate(Parameters in){
             if(!update) {
-                oldParameters = parameters;
+                oldParameters = new Parameters(parameters);
             }
-            parameters = new Parameters(in);
+            parameters.partialClone(in);
             update = true;
         }
 

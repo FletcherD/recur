@@ -15,7 +15,6 @@ public class Parameters implements java.io.Serializable
 {
     transient int width;
     transient int height;
-    transient int pixelNum;
     float[] center;
 
     double rotateAngle;
@@ -30,7 +29,7 @@ public class Parameters implements java.io.Serializable
     float brightness[];
     float gamma[];
 
-    transient float borderColor[];
+    float borderColor[];
 
     transient boolean noiseOn;
     float noiseStd;
@@ -40,7 +39,6 @@ public class Parameters implements java.io.Serializable
     Parameters() {
         width = 300;
         height = 300;
-        pixelNum = width*height;
         center = new float[]{(float)(Math.floor(width/2.0)+0.25), (float)(Math.floor(height/2.0)+0.25)};
         rotateAngle = Math.PI * (1.0/5.0);
         scaleFactor = 1.15;
@@ -60,10 +58,13 @@ public class Parameters implements java.io.Serializable
         clone(in);
     }
 
+    public int pixelNum() {
+        return width * height;
+    }
+
     public void clone(Parameters in){
         width = in.width;
         height = in.height;
-        pixelNum = in.pixelNum;
         center = in.center.clone();
         rotateAngle = in.rotateAngle;
         scaleFactor = in.scaleFactor;
@@ -77,6 +78,19 @@ public class Parameters implements java.io.Serializable
             borderColor = in.borderColor.clone();
         gamma = in.gamma.clone();
         noiseOn = in.noiseOn;
+        noiseStd = in.noiseStd;
+    }
+
+    public void partialClone(Parameters in){
+        center = in.center.clone();
+        rotateAngle = in.rotateAngle;
+        scaleFactor = in.scaleFactor;
+        blurRadius = in.blurRadius;
+        unsharpRadius = in.unsharpRadius;
+        unsharpWeight = in.unsharpWeight;
+        contrast = in.contrast.clone();
+        brightness = in.brightness.clone();
+        gamma = in.gamma.clone();
         noiseStd = in.noiseStd;
     }
 

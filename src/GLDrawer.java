@@ -24,7 +24,7 @@ import static org.lwjgl.opengl.Util.checkGLError;
     int textureID;
     boolean mouseStatus[] = { false, false };
     boolean keyStatus = false;
-    boolean runToggle = false;
+    boolean runToggle = true;
     Recur.SharedGlData sharedGlData;
 
     Parameters parameters;
@@ -91,7 +91,7 @@ import static org.lwjgl.opengl.Util.checkGLError;
         IntBuffer intBuffer = BufferUtils.createIntBuffer(2);
         BufferUtils.zeroBuffer(intBuffer);
         glGenBuffers(intBuffer);
-        FloatBuffer data = BufferUtils.createFloatBuffer(parameters.pixelNum * 4);
+        FloatBuffer data = BufferUtils.createFloatBuffer(parameters.pixelNum() * 4);
 
         glBindBuffer(GL_ARRAY_BUFFER, intBuffer.get(0));
         glBufferData(GL_ARRAY_BUFFER, data, GL_DYNAMIC_DRAW);
