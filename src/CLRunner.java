@@ -95,15 +95,15 @@ public class CLRunner implements Runnable {
     }
 
     private void init() throws Exception {
-        Drawable d = sharedGlData.get();
+        Drawable drawable = sharedGlData.get();
         CL.create();
         platform = CLPlatform.getPlatforms().get(0);
         devices = platform.getDevices(CL_DEVICE_TYPE_GPU);
         if(devices == null || devices.isEmpty()) {
-            throw new Exception("Recur can't run because you don't have a graphics card that supports OpenCL. ");
+            throw new Exception("Recur can't run because you don't have a graphics card that supports OpenCL.");
         }
         IntBuffer err = BufferUtils.createIntBuffer(1);
-        context = CLContext.create(platform, devices, null, d, err);
+        context = CLContext.create(platform, devices, null, drawable, err);
         Util.checkCLError(err.get(0));
         printClInfo();
 
@@ -162,9 +162,6 @@ public class CLRunner implements Runnable {
         long startTime = System.currentTimeMillis();
         while(status && !sharedGlData.finished && !sharedGlData.restart)
         {
-            if(parameterUpdate.getUpdate()) {
-                changeParameters();
-            }
             status = flipBuffers();
             frames++;
             long timeUsed = System.currentTimeMillis() - startTime;
@@ -173,6 +170,9 @@ public class CLRunner implements Runnable {
                         + (frames / (timeUsed / 1000f)));
                 startTime = System.currentTimeMillis();
                 frames = 0;
+            }
+            if(parameterUpdate.getUpdate()) {
+                changeParameters();
             }
         }
         dispose();
@@ -186,7 +186,7 @@ public class CLRunner implements Runnable {
         clFinish(iterateQueue);
         try{
             sharedGlData.clAcquire();
-        } catch (LWJGLException e) {
+        } catch (Exception e) {
             return false;
         }
         CL10GL.clEnqueueAcquireGLObjects(iterateQueue, pboMem[imageData.getWorkingFlip()], null, null);
@@ -205,7 +205,7 @@ public class CLRunner implements Runnable {
 
     public String bufToString(ByteBuffer strBuf, PointerBuffer lenBuf) {
         String log = "";
-        for(int i = 0; i < lenBuf.get(0); i++) {
+        for(int i = 0; i < lenBuf.get(0)-1; i++) {
             log += (char)(strBuf.get());
         }
         return log;
@@ -267,12 +267,15 @@ public class CLRunner implements Runnable {
         Parameters oldP = parameterUpdate.oldParameters;
         if(parameters.scaleFactor != oldP.scaleFactor ||
            parameters.rotateAngle != oldP.rotateAngle ||
-           parameters.blurRadius != oldP.blurRadius) {
+           parameters.center[0] != oldP.center[0] || parameters.center[1] != oldP.center[1]) {
             createColorParamsMem();
             setLinearTransform();
-            setGaussianBlur();
             calculateBlurMatrices();
             //parameters.setDebugMatrix(getMatrices());
+        } else if (parameters.blurRadius != oldP.blurRadius) {
+            createColorParamsMem();
+            setGaussianBlur();
+            calculateBlurMatrices();
         }
         if(parameters.unsharpRadius != oldP.unsharpRadius ||
            parameters.unsharpWeight != oldP.unsharpWeight) {

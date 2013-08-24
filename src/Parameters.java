@@ -124,18 +124,6 @@ public class Parameters implements java.io.Serializable
         }
     }
 
-    public String arrayFormatC(float in[]) {
-        String s = "{";
-        for(int i = 0; i < in.length; i++) {
-            s = s + Float.toString(in[i]);
-            if(i != in.length-1) {
-                s = s + ", ";
-            }
-        }
-        s = s + "}";
-        return s;
-    }
-
     public float[] getBorderColorGamma() {
         float[] r = new float[borderColor.length];
         for(int i = 0; i < borderColor.length; i++) {

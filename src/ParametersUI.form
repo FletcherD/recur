@@ -47,7 +47,7 @@
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Scale Factor"/>
+                  <text value="&lt;HTML&gt;Scale&lt;BR&gt;Factor&lt;/HTML&gt;"/>
                 </properties>
               </component>
               <component id="2b165" class="javax.swing.JSlider" binding="sliderRotate">
@@ -100,7 +100,7 @@
                   <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Focal Radius"/>
+                  <text value="&lt;HTML&gt;Focal&lt;BR&gt;Radius&lt;/HTML&gt;"/>
                 </properties>
               </component>
               <component id="f93bc" class="javax.swing.JSlider" binding="sliderUnsharpRadius">
@@ -130,7 +130,7 @@
                   <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Unsharp Radius"/>
+                  <text value="&lt;HTML&gt;Unsharp&lt;BR&gt;Radius&lt;/HTML&gt;"/>
                 </properties>
               </component>
               <component id="f30f8" class="javax.swing.JLabel">
@@ -138,7 +138,7 @@
                   <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text value="Unsharp Weight"/>
+                  <text value="&lt;HTML&gt;Unsharp&lt;BR&gt;Weight&lt;/HTML&gt;"/>
                 </properties>
               </component>
               <component id="6f165" class="javax.swing.JSlider" binding="sliderNoise">
@@ -403,7 +403,7 @@
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text value="Rotation Angle"/>
+                      <text value="&lt;HTML&gt;Rotation&lt;BR&gt;Angle&lt;/HTML&gt;"/>
                     </properties>
                   </component>
                   <component id="31a3d" class="javax.swing.JLabel">
@@ -411,7 +411,7 @@
                       <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text value="Scale Factor"/>
+                      <text value="&lt;HTML&gt;Scale&lt;BR&gt;Factor&lt;/HTML&gt;"/>
                     </properties>
                   </component>
                 </children>
@@ -619,7 +619,7 @@
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text value="Focal Radius"/>
+                      <text value="&lt;HTML&gt;Focal&lt;BR&gt;Radius&lt;/HTML&gt;"/>
                     </properties>
                   </component>
                   <component id="fce6f" class="javax.swing.JLabel">
@@ -627,7 +627,7 @@
                       <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text value="Unsharp Radius"/>
+                      <text value="&lt;HTML&gt;Unsharp&lt;BR&gt;Radius&lt;/HTML&gt;"/>
                     </properties>
                   </component>
                   <component id="86b77" class="javax.swing.JFormattedTextField" binding="fieldUnsharpWeight">
@@ -643,7 +643,7 @@
                       <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text value="Unsharp Weight"/>
+                      <text value="&lt;HTML&gt;Unsharp&lt;BR&gt;Weight&lt;/HTML&gt;"/>
                     </properties>
                   </component>
                   <component id="ce39e" class="javax.swing.JFormattedTextField" binding="fieldNoiseStdev">
@@ -659,7 +659,7 @@
                       <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <text value="Noise StdDev"/>
+                      <text value="&lt;HTML&gt;Noise&lt;BR&gt;StdDev&lt;/HTML&gt;"/>
                     </properties>
                   </component>
                 </children>

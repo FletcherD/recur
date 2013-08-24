@@ -81,6 +81,9 @@ public class Recur {
             try { Display.releaseContext(); } catch (LWJGLException e) {e.printStackTrace();}
             lock.unlock();
         }
+        public void destroyRelease() {
+            lock.unlock();
+        }
 
         public synchronized void glAcquire() throws LWJGLException {
             while (clWaiting) {
@@ -101,7 +104,7 @@ public class Recur {
             Display.makeCurrent();
         }
     }
-    SharedGlData sharedGlData = new SharedGlData();
+    SharedGlData sharedGlData;
 
     public class SharedParameterUpdate {
         public Parameters parameters;
@@ -129,6 +132,7 @@ public class Recur {
         }
     }
     SharedParameterUpdate parameterUpdate = new SharedParameterUpdate();
+    ParametersUI parametersUI = null;
 
     public static void main(String[] args) {
         new Recur().execute();
@@ -140,6 +144,7 @@ public class Recur {
      */
     private void execute() {
         do {
+            sharedGlData = new SharedGlData();
             imageData = new ImageData();
 
             glDrawer = new GLDrawer(imageData, parameterUpdate, sharedGlData);
@@ -150,9 +155,15 @@ public class Recur {
             clThread = new Thread(clRunner);
             clThread.start();
 
-            ParametersUI parametersUI = new ParametersUI(parameterUpdate, glDrawer.getWidth(), glDrawer.getHeight());
-            sharedGlData.restart = false;
+            if(parametersUI == null)
+                parametersUI = new ParametersUI(parameterUpdate, glDrawer.getWidth(), glDrawer.getHeight());
             while(glThread.isAlive() && clThread.isAlive()) {}
+            try{
+                sharedGlData.finished = true;
+                glThread.join(); clThread.join();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         } while (sharedGlData.restart);
     }
 

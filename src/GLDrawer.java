@@ -29,7 +29,7 @@ import static org.lwjgl.opengl.Util.checkGLError;
 
     Parameters parameters;
     int zoom;
-    boolean initialized = false;
+    int oldWidth, oldHeight;
 
     public GLDrawer(ImageData inImageData, Recur.SharedParameterUpdate inParameters, Recur.SharedGlData inShared) {
         parameters = inParameters.parameters;
@@ -51,14 +51,16 @@ import static org.lwjgl.opengl.Util.checkGLError;
         Display.setLocation((Display.getDisplayMode().getWidth() - parameters.width*zoom) / 2,
                 (Display.getDisplayMode().getHeight() - parameters.height*zoom) / 2);
         Display.setDisplayMode(new DisplayMode(parameters.width*zoom, parameters.height*zoom));
+        oldWidth = parameters.width*zoom; oldHeight = parameters.height*zoom;
         Display.setTitle("Recur");
         Display.setVSyncEnabled(false);
+        Display.setResizable(true);
         Display.create();
 
-        initialized = true;
-//        int totalMem = glGetInteger(0x9048 /*GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX*/);
-//        int availMem = glGetInteger(0x9049 /*GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX*/);
-//        System.out.println("OpenGL Video Memory: " + availMem + " / " + totalMem + " kB available");
+        // Shows video memory, but only on Nvidia cards
+        //        int totalMem = glGetInteger(0x9048 /*GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX*/);
+        //        int availMem = glGetInteger(0x9049 /*GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX*/);
+        //        System.out.println("OpenGL Video Memory: " + availMem + " / " + totalMem + " kB available");
 
         glEnable(GL_TEXTURE_2D);
         glDisable(GL_DEPTH_TEST);
@@ -113,6 +115,9 @@ import static org.lwjgl.opengl.Util.checkGLError;
                 e.printStackTrace();
                 return;
             }
+            if(oldWidth != Display.getWidth() || oldHeight != Display.getHeight()) {
+                resized();
+            }
 
             //glClear(GL_COLOR_BUFFER_BIT);
             try {
@@ -140,12 +145,6 @@ import static org.lwjgl.opengl.Util.checkGLError;
             if(runToggle || (Mouse.isButtonDown(0) && !mouseStatus[0])) {
                 imageData.readFrame();
             }
-            if(Mouse.isButtonDown(1) && !mouseStatus[1]) {
-                int x = Mouse.getX() / (Display.getWidth() / parameters.width);
-                int y = (Display.getHeight() - Mouse.getY()) / (Display.getWidth() / parameters.width);
-                printMatrix(Mouse.getX(), y);
-                printPosition(Mouse.getX(), y);
-            }
             if(Keyboard.isKeyDown(Keyboard.KEY_SPACE) && !keyStatus) {
                 runToggle = !runToggle;
             }
@@ -155,6 +154,28 @@ import static org.lwjgl.opengl.Util.checkGLError;
         }
         sharedGlData.finished = true;
         imageData.readFrame();
+        dispose();
+    }
+
+    private void dispose() {
+        try {
+        sharedGlData.glAcquire();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        glDeleteBuffers(imageData.getBuffer(0));
+        glDeleteBuffers(imageData.getBuffer(1));
+        Display.destroy();
+        sharedGlData.destroyRelease();
+    }
+
+    private void resized() {
+        oldWidth = Display.getWidth();
+        oldHeight = Display.getHeight();
+        zoom = (int)Math.floor(Math.min(oldWidth/parameters.width, oldHeight/parameters.height));
+        zoom = Math.max(zoom,1);
+        glViewport((oldWidth-getWidth())/2, (oldHeight-getHeight())/2, getWidth(), getHeight());
+        glClear(GL_COLOR_BUFFER_BIT);
     }
 
     private void printMatrix(int x, int y) {
@@ -185,8 +206,5 @@ import static org.lwjgl.opengl.Util.checkGLError;
     }
     public int getHeight() {
         return parameters.height*zoom;
-    }
-    public boolean isInitialized() {
-        return initialized;
     }
 }
