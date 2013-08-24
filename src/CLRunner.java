@@ -160,7 +160,7 @@ public class CLRunner implements Runnable {
             return;
         }
         long startTime = System.currentTimeMillis();
-        while(status && !sharedGlData.isFinished())
+        while(status && !sharedGlData.finished && !sharedGlData.restart)
         {
             if(parameterUpdate.getUpdate()) {
                 changeParameters();
@@ -287,6 +287,12 @@ public class CLRunner implements Runnable {
            parameters.contrast[0] != oldP.contrast[0] ||
            parameters.borderColor[0] != oldP.borderColor[0]) {
             createColorParamsMem();
+        }
+        if(parameters.width != oldP.width ||
+           parameters.height != oldP.height ||
+           parameters.matrixSize != oldP.matrixSize ||
+           parameters.noiseOn != oldP.noiseOn) {
+            sharedGlData.restart = true;
         }
     }
 

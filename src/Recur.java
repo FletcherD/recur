@@ -56,6 +56,7 @@ public class Recur {
         boolean initialized = false;
         boolean clWaiting = false;
         boolean finished = false;
+        boolean restart = false;
         public Lock lock = new ReentrantLock();
 
         public synchronized void set(Drawable d) {
@@ -99,13 +100,6 @@ public class Recur {
             notifyAll();
             Display.makeCurrent();
         }
-
-        public void setFinished() {
-            finished = true;
-        }
-        public boolean isFinished() {
-            return finished;
-        }
     }
     SharedGlData sharedGlData = new SharedGlData();
 
@@ -122,7 +116,7 @@ public class Recur {
             if(!update) {
                 oldParameters = new Parameters(parameters);
             }
-            parameters.partialClone(in);
+            parameters.clone(in);
             update = true;
         }
 
@@ -145,19 +139,21 @@ public class Recur {
      *
      */
     private void execute() {
-        imageData = new ImageData();
+        do {
+            imageData = new ImageData();
 
-        glDrawer = new GLDrawer(imageData, parameterUpdate, sharedGlData);
-        glThread = new Thread((glDrawer));
-        glThread.start();
+            glDrawer = new GLDrawer(imageData, parameterUpdate, sharedGlData);
+            glThread = new Thread((glDrawer));
+            glThread.start();
 
-        clRunner = new CLRunner(imageData, parameterUpdate, sharedGlData);
-        clThread = new Thread(clRunner);
-        clThread.start();
+            clRunner = new CLRunner(imageData, parameterUpdate, sharedGlData);
+            clThread = new Thread(clRunner);
+            clThread.start();
 
-        ParametersUI parametersUI = new ParametersUI(parameterUpdate, glDrawer.getWidth(), glDrawer.getHeight());
-
-        while(glThread.isAlive() && clThread.isAlive()) {}
+            ParametersUI parametersUI = new ParametersUI(parameterUpdate, glDrawer.getWidth(), glDrawer.getHeight());
+            sharedGlData.restart = false;
+            while(glThread.isAlive() && clThread.isAlive()) {}
+        } while (sharedGlData.restart);
     }
 
 }

@@ -29,7 +29,7 @@ public class Parameters implements java.io.Serializable
     float brightness[];
     float gamma[];
 
-    float borderColor[];
+    transient float borderColor[];
 
     transient boolean noiseOn;
     float noiseStd;
@@ -74,7 +74,7 @@ public class Parameters implements java.io.Serializable
         unsharpWeight = in.unsharpWeight;
         contrast = in.contrast.clone();
         brightness = in.brightness.clone();
-        if(borderColor != null)
+        if(in.borderColor != null)
             borderColor = in.borderColor.clone();
         gamma = in.gamma.clone();
         noiseOn = in.noiseOn;
@@ -116,7 +116,7 @@ public class Parameters implements java.io.Serializable
             ByteArrayInputStream inStream = new ByteArrayInputStream(byteArray);
             ObjectInputStream objectStream = new ObjectInputStream(inStream);
             Parameters p = (Parameters) objectStream.readObject();
-            clone(p);
+            partialClone(p);
         }catch(Exception i)
         {
             i.printStackTrace();

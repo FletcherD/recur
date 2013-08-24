@@ -36,14 +36,9 @@ import static org.lwjgl.opengl.Util.checkGLError;
         imageData = inImageData;
         sharedGlData = inShared;
         try{
-            DisplayMode[] modes = Display.getAvailableDisplayModes();
-            int maxWidth = 0;
-            int maxHeight = 0;
-            for (int i=0;i<modes.length;i++) {
-                DisplayMode current = modes[i];
-                maxWidth = Math.max(maxWidth, current.getWidth()-100);
-                maxHeight = Math.max(maxHeight, current.getHeight()-100);
-            }
+            DisplayMode current = Display.getDisplayMode();
+            int maxWidth = current.getWidth()-50;
+            int maxHeight = current.getHeight()-100;
             zoom = (int)Math.floor(Math.min(maxWidth/parameters.width, maxHeight/parameters.height));
             zoom = Math.max(zoom,1);
         } catch(Exception i) {
@@ -110,7 +105,7 @@ import static org.lwjgl.opengl.Util.checkGLError;
             return;
         }
         boolean closeRequested = false;
-        while (!closeRequested) {
+        while (!closeRequested && !sharedGlData.finished && !sharedGlData.restart) {
             try {
                 sharedGlData.glAcquire();
             } catch (LWJGLException e) {
@@ -158,7 +153,7 @@ import static org.lwjgl.opengl.Util.checkGLError;
             mouseStatus[1] = Mouse.isButtonDown(1);
             keyStatus = Keyboard.isKeyDown(Keyboard.KEY_SPACE);
         }
-        sharedGlData.setFinished();
+        sharedGlData.finished = true;
         imageData.readFrame();
     }
 
