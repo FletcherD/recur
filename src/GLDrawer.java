@@ -4,7 +4,11 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.*;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -98,6 +102,26 @@ import static org.lwjgl.opengl.Util.checkGLError;
         imageData.setBuffers(intBuffer);
     }
 
+    private void screenshot() {
+        FloatBuffer data = BufferUtils.createFloatBuffer(parameters.pixelNum() * 4);
+        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);
+        BufferedImage image = new BufferedImage(parameters.width, parameters.height, BufferedImage.TYPE_INT_RGB);
+        int bpp = 4;
+        for(int x = 0; x < parameters.width; x++) {
+            for(int y = 0; y < parameters.height; y++)
+            {
+                int i = (x + (parameters.width * y)) * bpp;
+                int r = (int)(255.0f * (data.get(i+0) / 1.0f));
+                int g = (int)(255.0f * (data.get(i+1) / 1.0f));
+                int b = (int)(255.0f * (data.get(i+2) / 1.0f));
+                image.setRGB(x, parameters.height - (y + 1), (0xFF << 24) | (r << 16) | (g << 8) | b);
+            }
+        }
+        try {
+            ImageIO.write(image, "PNG", new File("C:\\Users\\lantos\\Documents\\screenshot.png"));
+        } catch (IOException e) { e.printStackTrace(); }
+    }
+
     public void run() {
         try {
             init();
@@ -140,6 +164,9 @@ import static org.lwjgl.opengl.Util.checkGLError;
 
             Display.update();
             closeRequested = Display.isCloseRequested();
+            if((Mouse.isButtonDown(1) && !mouseStatus[1])) {
+                screenshot();
+            }
             sharedGlData.release();
 
             if(runToggle || (Mouse.isButtonDown(0) && !mouseStatus[0])) {
