@@ -1,5 +1,5 @@
 //NOISE_DEFINE
-__constant float3 centerColor = {0.5, 0.5, 0.5};
+__constant float3 centerColor = {0.5f, 0.5f, 0.5f};
 
 struct ColorParams
 {
@@ -39,11 +39,13 @@ float3 adjustColor(const float3 colorIn, const float3 randomColor, __constant st
 
 kernel void gammaApply(global float3 *in, __constant struct ColorParams *cParams) {
     unsigned int xid = get_global_id(0);
-    in[xid] = max(pow(in[xid], cParams->gamma), 0.0);
+    // pow() behaves strangely on some machines, native_powr() is faster and better behaved
+    // max is there because this weirdly goes negative on some machines
+    in[xid] = max( native_powr(in[xid], cParams->gamma), 0.0f);
 }
 
 __inline__ float3 gammaCorrect(const float3 in, __constant struct ColorParams *cParams) {
-    return pow(in, 1.0/(cParams->gamma));
+    return native_powr(in, 1.0f/(cParams->gamma));
 }
 
 kernel void iterate(global const float3 *in, global float3 *out, global const int2 *positions,
@@ -60,7 +62,7 @@ kernel void iterate(global const float3 *in, global float3 *out, global const in
         return;
     }
 
-    float3 color = {0.0, 0.0, 0.0};
+    float3 color = {0.0f, 0.0f, 0.0f};
     unsigned int matrixIdx = xid * MSIZE * MSIZE;
     for(int m = 0; m < MSIZE; m++) {
         int x = matrixPos.x + m;
@@ -160,7 +162,7 @@ kernel void createBlurMatrices(global float *blurMatrices, global int2 *position
     }
 }
 
-float chordArea(float r, float d)
+__inline__ float chordArea(float r, float d)
 {
     float area = pow(r,2.0)*acos(d/r);
     area -= d * sqrt(pow(r,2.0) - pow(d,2.0));
