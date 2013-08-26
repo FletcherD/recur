@@ -45,11 +45,11 @@ public class Parameters implements java.io.Serializable
         matrixSize = 5;
         blurRadius = 0.5f;
         unsharpRadius = 1.0f;
-        unsharpWeight = 1.0f;
+        unsharpWeight = 0.5f;
         contrast = new float[]{1.0f, 1.0f, 1.0f};
         brightness = new float[]{0.0f, 0.0f, 0.0f};
         borderColor = new float[]{0.05f, 0.03f, 0.03f};
-        gamma = new float[]{2.0f, 1.8f, 2.3f};
+        gamma = new float[]{2.0f, 1.8f, 2.2f};
         noiseOn = true;
         noiseStd = 0.001f;
     }
