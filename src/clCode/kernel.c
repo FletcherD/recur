@@ -1,4 +1,5 @@
 //NOISE_DEFINE
+#define M_PI 3.14159265358979323846264338327950288419716939937510582
 __constant float3 centerColor = {0.5f, 0.5f, 0.5f};
 
 struct ColorParams

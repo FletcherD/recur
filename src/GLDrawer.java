@@ -27,7 +27,6 @@ import static org.lwjgl.opengl.Util.checkGLError;
     ImageData imageData;
     int textureID;
     boolean mouseStatus[] = { false, false };
-    boolean keyStatus = false;
     boolean runToggle = true;
     Recur.SharedGlData sharedGlData;
 
@@ -36,7 +35,7 @@ import static org.lwjgl.opengl.Util.checkGLError;
     int oldWidth, oldHeight;
 
     public GLDrawer(ImageData inImageData, Recur.SharedParameterUpdate inParameters, Recur.SharedGlData inShared) {
-        parameters = inParameters.parameters;
+        parameters = new Parameters(inParameters.parameters);
         imageData = inImageData;
         sharedGlData = inShared;
         try{
@@ -82,7 +81,6 @@ import static org.lwjgl.opengl.Util.checkGLError;
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-        FloatBuffer data = BufferUtils.createFloatBuffer(parameters.width * parameters.height * 4);
         setupBuffers();
         glBindTexture(GL_TEXTURE_2D, textureID);
         sharedGlData.set(Display.getDrawable());
@@ -118,7 +116,8 @@ import static org.lwjgl.opengl.Util.checkGLError;
             }
         }
         try {
-            ImageIO.write(image, "PNG", new File("C:\\Users\\lantos\\Documents\\screenshot.png"));
+            String filePath = "C:\\";
+            ImageIO.write(image, "PNG", new File(filePath + "recur_screenshot.png"));
         } catch (IOException e) { e.printStackTrace(); }
     }
 
@@ -135,6 +134,7 @@ import static org.lwjgl.opengl.Util.checkGLError;
             try {
                 sharedGlData.glAcquire();
             } catch (LWJGLException e) {
+                dispose();
                 JOptionPane.showMessageDialog(new JFrame(), e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 e.printStackTrace();
                 return;
@@ -143,17 +143,18 @@ import static org.lwjgl.opengl.Util.checkGLError;
                 resized();
             }
 
-            //glClear(GL_COLOR_BUFFER_BIT);
             try {
                 glBindBuffer(GL21.GL_PIXEL_UNPACK_BUFFER, imageData.getBuffer());
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, parameters.width, parameters.height, 0, GL_RGBA, GL_FLOAT, (long) 0);
                 checkGLError();
             } catch (OpenGLException e) {
+                dispose();
+                JOptionPane.showMessageDialog(new JFrame(), e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 e.printStackTrace();
-                System.out.println("Failed to bind pixel buffer.");
                 return;
             }
 
+            glClear(GL_COLOR_BUFFER_BIT);
             glColor4f(1, 1, 1, 1);
             glBegin(GL_QUADS);
             glTexCoord2f(0.0f, 0.0f);   glVertex2f(0.0f, 0.0f);
@@ -163,21 +164,24 @@ import static org.lwjgl.opengl.Util.checkGLError;
             glEnd();
 
             Display.update();
-            closeRequested = Display.isCloseRequested();
             if((Mouse.isButtonDown(1) && !mouseStatus[1])) {
                 screenshot();
             }
             sharedGlData.release();
 
+            while(Keyboard.next()) {
+                if(Keyboard.getEventKeyState()) {
+                    if(Keyboard.getEventKey() == Keyboard.KEY_SPACE) {
+                        runToggle = !runToggle;
+                    }
+                }
+            }
             if(runToggle || (Mouse.isButtonDown(0) && !mouseStatus[0])) {
                 imageData.readFrame();
             }
-            if(Keyboard.isKeyDown(Keyboard.KEY_SPACE) && !keyStatus) {
-                runToggle = !runToggle;
-            }
             mouseStatus[0] = Mouse.isButtonDown(0);
             mouseStatus[1] = Mouse.isButtonDown(1);
-            keyStatus = Keyboard.isKeyDown(Keyboard.KEY_SPACE);
+            closeRequested = Display.isCloseRequested();
         }
         sharedGlData.finished = true;
         imageData.readFrame();

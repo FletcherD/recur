@@ -109,6 +109,7 @@ public class ParametersUI implements ChangeListener {
                 fieldChanged();
             }
         });
+        frame.requestFocus();
     }
 
     public void stateChanged(ChangeEvent e) {
@@ -154,8 +155,8 @@ public class ParametersUI implements ChangeListener {
         uiParameters.gamma[0] = ((Number)fieldGammaR.getValue()).floatValue();
         uiParameters.gamma[1] = ((Number)fieldGammaG.getValue()).floatValue();
         uiParameters.gamma[2] = ((Number)fieldGammaB.getValue()).floatValue();
-        uiParameters.rotateAngle = ((Number)fieldRotation.getValue()).floatValue();
-        uiParameters.scaleFactor = ((Number)fieldScaleFactor.getValue()).floatValue();
+        uiParameters.rotateAngle = ((Number)fieldRotation.getValue()).doubleValue();
+        uiParameters.scaleFactor = ((Number)fieldScaleFactor.getValue()).doubleValue();
         uiParameters.unsharpRadius = ((Number)fieldUnsharpRadius.getValue()).floatValue();
         uiParameters.blurRadius = ((Number)fieldFocalRadius.getValue()).floatValue();
         uiParameters.unsharpWeight = ((Number)fieldUnsharpWeight.getValue()).floatValue();
@@ -177,15 +178,11 @@ public class ParametersUI implements ChangeListener {
     private void updateSliders() {
         sliderRotate.setValue((int)(500.0*uiParameters.rotateAngle/Math.PI));
         sliderScale.setValue((int)(100*uiParameters.scaleFactor));
-
         sliderContrast.setValue((int)(1000*uiParameters.contrast[0]));
-
         sliderBrightness.setValue((int)(1000*uiParameters.brightness[0]));
-
         sliderGammaR.setValue((int)(1000*uiParameters.gamma[0]));
         sliderGammaG.setValue((int)(1000*uiParameters.gamma[1]));
         sliderGammaB.setValue((int)(1000*uiParameters.gamma[2]));
-
         sliderBokehRadius.setValue((int) (100 * uiParameters.blurRadius));
         sliderUnsharpRadius.setValue((int) (100 * uiParameters.unsharpRadius));
         sliderUnsharpWeight.setValue((int) (100 * uiParameters.unsharpWeight));

@@ -1,4 +1,3 @@
-import org.lwjgl.LWJGLException;
 import org.lwjgl.opencl.Util;
 import org.lwjgl.opencl.CLMem;
 import org.lwjgl.opencl.CLCommandQueue;
@@ -92,6 +91,12 @@ public class CLRunner implements Runnable {
         System.out.println("OpenCL Version Supported: " + bufToString(valueBuf, lenBuf));
         clGetDeviceInfo(devices.get(0), CL_DRIVER_VERSION, valueBuf, lenBuf);
         System.out.println("OpenCL Software Driver Version: " + bufToString(valueBuf, lenBuf));
+        clGetDeviceInfo(devices.get(0), CL_DEVICE_GLOBAL_MEM_SIZE, valueBuf, lenBuf);
+        System.out.println("OpenCL Global Memory Size: " + valueBuf.getLong()/(1024*1024) + " MB");
+        clGetDeviceInfo(devices.get(0), CL_DEVICE_MAX_CLOCK_FREQUENCY, valueBuf, lenBuf);
+        System.out.println("OpenCL Device Clock Frequency: " + valueBuf.getLong() + " MHz");
+        clGetDeviceInfo(devices.get(0), CL_DEVICE_MAX_COMPUTE_UNITS, valueBuf, lenBuf);
+        System.out.println("OpenCL Maximum Compute Units: " + valueBuf.getLong());
     }
 
     private void init() throws Exception {
@@ -100,7 +105,7 @@ public class CLRunner implements Runnable {
         platform = CLPlatform.getPlatforms().get(0);
         devices = platform.getDevices(CL_DEVICE_TYPE_GPU);
         if(devices == null || devices.isEmpty()) {
-            throw new Exception("Recur can't run because you don't have a graphics card that supports OpenCL.");
+            throw new Exception("Sorry, but Recur can't run because you don't have a graphics card that supports OpenCL.");
         }
         IntBuffer err = BufferUtils.createIntBuffer(1);
         context = CLContext.create(platform, devices, null, drawable, err);
@@ -155,6 +160,8 @@ public class CLRunner implements Runnable {
         try{
             init();
         } catch (Exception e) {
+            sharedGlData.finished = true;
+            sharedGlData.release();
             JOptionPane.showMessageDialog(new JFrame(), e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
             return;
@@ -231,14 +238,14 @@ public class CLRunner implements Runnable {
         try {
             program = clCreateProgramWithSource(context, source, err);
             Util.checkCLError(err.get(0));
-            Util.checkCLError(clBuildProgram(program, devices.get(0), "", null));
+            Util.checkCLError(clBuildProgram(program, devices.get(0), "-w", null));
         } catch (Exception er) {
             PointerBuffer logSize = BufferUtils.createPointerBuffer(1);
             clGetProgramBuildInfo(program, devices.get(0), CL_PROGRAM_BUILD_LOG, null, logSize);
             ByteBuffer logBuf = BufferUtils.createByteBuffer((int)(logSize.get(0)));
             clGetProgramBuildInfo(program, devices.get(0), CL_PROGRAM_BUILD_LOG, logBuf, logSize);
-            System.out.println(bufToString(logBuf, logSize));
-            throw er;
+            String compilationError = bufToString(logBuf, logSize);
+            throw new Exception("OpenCL code could not be compiled on this machine.\nCompiler output follows:\n" + compilationError);
         }
         // sum has to match a kernel method name in the OpenCL source
         blurKernel = clCreateKernel(program, "iterate", null);
@@ -265,6 +272,13 @@ public class CLRunner implements Runnable {
     public void changeParameters() {
         parameters = parameterUpdate.parameters;
         Parameters oldP = parameterUpdate.oldParameters;
+        if(parameters.width != oldP.width ||
+                parameters.height != oldP.height ||
+                parameters.matrixSize != oldP.matrixSize ||
+                parameters.noiseOn != oldP.noiseOn) {
+            sharedGlData.restart = true;
+            return;
+        }
         if(parameters.scaleFactor != oldP.scaleFactor ||
            parameters.rotateAngle != oldP.rotateAngle ||
            parameters.center[0] != oldP.center[0] || parameters.center[1] != oldP.center[1]) {
@@ -290,12 +304,6 @@ public class CLRunner implements Runnable {
            parameters.contrast[0] != oldP.contrast[0] ||
            parameters.borderColor[0] != oldP.borderColor[0]) {
             createColorParamsMem();
-        }
-        if(parameters.width != oldP.width ||
-           parameters.height != oldP.height ||
-           parameters.matrixSize != oldP.matrixSize ||
-           parameters.noiseOn != oldP.noiseOn) {
-            sharedGlData.restart = true;
         }
     }
 
