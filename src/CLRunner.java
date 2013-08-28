@@ -81,22 +81,21 @@ public class CLRunner implements Runnable {
         sharedGlData = inShared;
     }
 
-    public void printClInfo() {
+    public void getClInfo() {
         //TODO: If OpenCL 1.1 isn't supported, fallback to float4
         ByteBuffer valueBuf = BufferUtils.createByteBuffer(255);
         PointerBuffer lenBuf = BufferUtils.createPointerBuffer(1);
         clGetDeviceInfo(devices.get(0), CL_DEVICE_NAME, valueBuf, lenBuf);
-        System.out.println("OpenCL Device: " + bufToString(valueBuf, lenBuf));
+        parameterUpdate.clInfo.device = bufToString(valueBuf, lenBuf);
         clGetDeviceInfo(devices.get(0), CL_DEVICE_VERSION, valueBuf, lenBuf);
-        System.out.println("OpenCL Version Supported: " + bufToString(valueBuf, lenBuf));
-        clGetDeviceInfo(devices.get(0), CL_DRIVER_VERSION, valueBuf, lenBuf);
-        System.out.println("OpenCL Software Driver Version: " + bufToString(valueBuf, lenBuf));
+        parameterUpdate.clInfo.version = bufToString(valueBuf, lenBuf);
         clGetDeviceInfo(devices.get(0), CL_DEVICE_GLOBAL_MEM_SIZE, valueBuf, lenBuf);
-        System.out.println("OpenCL Global Memory Size: " + valueBuf.getLong()/(1024*1024) + " MB");
+        parameterUpdate.clInfo.memSize = valueBuf.getLong();
         clGetDeviceInfo(devices.get(0), CL_DEVICE_MAX_CLOCK_FREQUENCY, valueBuf, lenBuf);
-        System.out.println("OpenCL Device Clock Frequency: " + valueBuf.getLong() + " MHz");
+        parameterUpdate.clInfo.frequency = valueBuf.getLong();
         clGetDeviceInfo(devices.get(0), CL_DEVICE_MAX_COMPUTE_UNITS, valueBuf, lenBuf);
-        System.out.println("OpenCL Maximum Compute Units: " + valueBuf.getLong());
+        parameterUpdate.clInfo.computeUnits = valueBuf.getLong();
+        parameterUpdate.clInfo.update = true;
     }
 
     private void init() throws Exception {
@@ -110,7 +109,7 @@ public class CLRunner implements Runnable {
         IntBuffer err = BufferUtils.createIntBuffer(1);
         context = CLContext.create(platform, devices, null, drawable, err);
         Util.checkCLError(err.get(0));
-        printClInfo();
+        getClInfo();
 
         iterateQueue = clCreateCommandQueue(context, devices.get(0), CL_QUEUE_PROFILING_ENABLE, null);
         convertQueue = clCreateCommandQueue(context, devices.get(0), CL_QUEUE_PROFILING_ENABLE, null);
@@ -172,9 +171,11 @@ public class CLRunner implements Runnable {
             status = flipBuffers();
             frames++;
             long timeUsed = System.currentTimeMillis() - startTime;
-            if (timeUsed > 2000) {
+            if (timeUsed >= 1000) {
                 System.out.println(frames + " frames rendered in " + timeUsed / 1000f + " seconds = "
                         + (frames / (timeUsed / 1000f)));
+                parameterUpdate.clInfo.fps = (frames / (timeUsed / 1000f));
+                parameterUpdate.clInfo.update = true;
                 startTime = System.currentTimeMillis();
                 frames = 0;
             }

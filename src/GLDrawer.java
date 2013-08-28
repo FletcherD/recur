@@ -101,6 +101,7 @@ import static org.lwjgl.opengl.Util.checkGLError;
     }
 
     private void screenshot() {
+        //TODO: Actually call this from somewhere, maybe button on ParametersUI
         FloatBuffer data = BufferUtils.createFloatBuffer(parameters.pixelNum() * 4);
         glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);
         BufferedImage image = new BufferedImage(parameters.width, parameters.height, BufferedImage.TYPE_INT_RGB);
@@ -164,9 +165,6 @@ import static org.lwjgl.opengl.Util.checkGLError;
             glEnd();
 
             Display.update();
-            if((Mouse.isButtonDown(1) && !mouseStatus[1])) {
-                screenshot();
-            }
             sharedGlData.release();
 
             while(Keyboard.next()) {

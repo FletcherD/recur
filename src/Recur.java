@@ -73,8 +73,20 @@ public class Recur {
         public Parameters oldParameters;
         boolean update=false;
 
+        public class ClInformation {
+            float fps;
+            String device;
+            String version;
+            long memSize;
+            long frequency;
+            long computeUnits;
+            boolean update=false;
+        }
+        public ClInformation clInfo;
+
         SharedParameterUpdate() {
             parameters = new Parameters();
+            clInfo = new ClInformation();
         }
 
         public synchronized void setUpdate(Parameters in){
@@ -119,7 +131,9 @@ public class Recur {
 
             if(parametersUI == null)
                 parametersUI = new ParametersUI(parameterUpdate, glDrawer.getWidth(), glDrawer.getHeight());
-            while(glThread.isAlive() && clThread.isAlive()) {}
+            while(glThread.isAlive() && clThread.isAlive()) {
+                parametersUI.updateClInfo(parameterUpdate.clInfo);
+            }
             try{
                 sharedGlData.finished = true;
                 glThread.join(); clThread.join();

@@ -7,7 +7,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 
 /**
  * Created with IntelliJ IDEA.
@@ -59,7 +58,8 @@ public class ParametersUI implements ChangeListener {
     private JFormattedTextField fieldUnsharpRadius;
     private JFormattedTextField fieldUnsharpWeight;
     private JFormattedTextField fieldNoiseStdev;
-    private JButton applyButton;
+    private JButton advancedApplyButton;
+    private JTextPane clInfoPane;
 
     public ParametersUI(Recur.SharedParameterUpdate in, int mainWidth, int mainHeight) {
         pUpdate = in;
@@ -103,7 +103,7 @@ public class ParametersUI implements ChangeListener {
                 pUpdate.setUpdate(uiParameters);
             }
         });
-        applyButton.addActionListener(new ActionListener() {
+        advancedApplyButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 fieldChanged();
@@ -173,6 +173,20 @@ public class ParametersUI implements ChangeListener {
         updateSliders();
         sliderListenerActive = true;
         pUpdate.setUpdate(uiParameters);
+    }
+
+    public void updateClInfo(Recur.SharedParameterUpdate.ClInformation clInfo) {
+        if(clInfo.update) {
+            String info = "";
+            info += "FPS: " + String.format("%.1f", clInfo.fps) + "\n\n";
+            info += "OpenCL Device: " + clInfo.device + "\n";
+            info += "OpenCL Version: " + clInfo.version + "\n";
+            info += "OpenCL Device Memory Size: " + clInfo.memSize/(1024*1024) + " MB\n";
+            info += "OpenCL Device Clock Frequency: " + clInfo.frequency + " MHz\n";
+            info += "OpenCL Device Compute Units: " + clInfo.computeUnits + "\n";
+            clInfoPane.setText(info);
+            clInfo.update = false;
+        }
     }
 
     private void updateSliders() {
