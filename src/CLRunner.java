@@ -168,6 +168,10 @@ public class CLRunner implements Runnable {
         long startTime = System.currentTimeMillis();
         while(status && !sharedGlData.finished && !sharedGlData.restart)
         {
+            if(parameterUpdate.getUpdate()) {
+                changeParameters();
+                continue;
+            }
             status = flipBuffers();
             frames++;
             long timeUsed = System.currentTimeMillis() - startTime;
@@ -178,9 +182,6 @@ public class CLRunner implements Runnable {
                 parameterUpdate.clInfo.update = true;
                 startTime = System.currentTimeMillis();
                 frames = 0;
-            }
-            if(parameterUpdate.getUpdate()) {
-                changeParameters();
             }
         }
         dispose();

@@ -39,7 +39,7 @@ public class ImageData {
                 wait();
             } catch (InterruptedException e) {e.printStackTrace(); }
         }
-        return PBids[flip];
+        return PBids[getFlip()];
     }
     public synchronized int getWorkingBuffer() {
         while(!initialized) {
@@ -47,7 +47,7 @@ public class ImageData {
                 wait();
             } catch (InterruptedException e) {e.printStackTrace(); }
         }
-        return PBids[(flip+1)%2];
+        return PBids[getWorkingFlip()];
     }
     public synchronized int getFrameNum() {
         return frameNum;

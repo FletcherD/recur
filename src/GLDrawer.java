@@ -169,9 +169,7 @@ import static org.lwjgl.opengl.Util.checkGLError;
 
             while(Keyboard.next()) {
                 if(Keyboard.getEventKeyState()) {
-                    if(Keyboard.getEventKey() == Keyboard.KEY_SPACE) {
-                        runToggle = !runToggle;
-                    }
+                    runToggle = !runToggle;
                 }
             }
             if(runToggle || (Mouse.isButtonDown(0) && !mouseStatus[0])) {
