@@ -324,8 +324,8 @@ public class CLRunner implements Runnable {
     public void setLinearTransform() {
     	double scale = 1.0/parameters.scaleFactor;
         FloatBuffer rMat = BufferUtils.createFloatBuffer(2);
-        rMat.put((float)(Math.sin(parameters.rotateAngle) * scale));
-        rMat.put((float)(Math.cos(parameters.rotateAngle) * scale));
+        rMat.put((float)(Math.sin(parameters.rotateAngle * Math.PI) * scale));
+        rMat.put((float)(Math.cos(parameters.rotateAngle * Math.PI) * scale));
         rMat.rewind();
         Util.checkCLError(clEnqueueWriteBuffer(iterateQueue, rMatrix, 1, 0, rMat, null, null));
     }

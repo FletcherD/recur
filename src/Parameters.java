@@ -1,7 +1,4 @@
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.text.DecimalFormat;
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,7 +8,7 @@ import java.io.ObjectOutputStream;
  * To change this template use File | Settings | File Templates.
  */
 
-public class Parameters implements java.io.Serializable
+public class Parameters
 {
     transient int width;
     transient int height;
@@ -40,7 +37,7 @@ public class Parameters implements java.io.Serializable
         width = 300;
         height = 300;
         center = new float[]{(float)(Math.floor(width/2.0)+0.25), (float)(Math.floor(height/2.0)+0.25)};
-        rotateAngle = Math.PI * (1.0/5.0);
+        rotateAngle = (1.0/5.0);
         scaleFactor = 1.15;
         matrixSize = 5;
         blurRadius = 0.5f;
@@ -95,31 +92,41 @@ public class Parameters implements java.io.Serializable
     }
 
     public String serialize() {
-        try{
-            ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-            ObjectOutputStream objectStream = new ObjectOutputStream(outStream);
-            objectStream.writeObject(this);
-            String paramString =
-                com.sun.org.apache.xerces.internal.impl.dv.util.Base64.encode(outStream.toByteArray());
-            return paramString;
-        }catch(java.io.IOException i)
-        {
-            i.printStackTrace();
-            return null;
-        }
+        String out = "";
+        DecimalFormat fMat = new DecimalFormat("0.######");
+        out += String.format("%s %s ", fMat.format(center[0]), fMat.format(center[1]));
+        out += String.format("%s %s ", fMat.format(rotateAngle), fMat.format(scaleFactor));
+        out += String.format("%s %s %s ", fMat.format(blurRadius), fMat.format(unsharpRadius), fMat.format(unsharpWeight));
+        out += String.format("%s %s %s ", fMat.format(contrast[0]), fMat.format(contrast[1]), fMat.format(contrast[2]));
+        out += String.format("%s %s %s ", fMat.format(brightness[0]), fMat.format(brightness[1]), fMat.format(brightness[2]));
+        out += String.format("%s %s %s ", fMat.format(gamma[0]), fMat.format(gamma[1]), fMat.format(gamma[2]));
+        DecimalFormat scifMat = new DecimalFormat("0.00E0");
+        out += String.format("%s ", scifMat.format(noiseStd));
+        return out;
     }
 
     public void deserialize(String in) {
-        try{
-            byte[] byteArray =
-                com.sun.org.apache.xerces.internal.impl.dv.util.Base64.decode(in);
-            ByteArrayInputStream inStream = new ByteArrayInputStream(byteArray);
-            ObjectInputStream objectStream = new ObjectInputStream(inStream);
-            Parameters p = (Parameters) objectStream.readObject();
-            partialClone(p);
-        }catch(Exception i)
-        {
-            i.printStackTrace();
+        class FieldReader {
+            String[] fields;
+            int idx = 0;
+            FieldReader(String[] in) { fields = in; }
+            public String read() throws Exception{
+                return fields[idx++];
+            }
+        }
+        FieldReader reader = new FieldReader(in.split(" "));
+        try {
+            center[0] = Float.parseFloat(reader.read()); center[1] = Float.parseFloat(reader.read());
+            rotateAngle = Float.parseFloat(reader.read()); scaleFactor = Float.parseFloat(reader.read());
+            blurRadius = Float.parseFloat(reader.read());
+            unsharpRadius = Float.parseFloat(reader.read());
+            unsharpWeight = Float.parseFloat(reader.read());
+            contrast[0] = Float.parseFloat(reader.read()); contrast[1] = Float.parseFloat(reader.read()); contrast[2] = Float.parseFloat(reader.read());
+            brightness[0] = Float.parseFloat(reader.read()); brightness[1] = Float.parseFloat(reader.read()); brightness[2] = Float.parseFloat(reader.read());
+            gamma[0] = Float.parseFloat(reader.read()); gamma[1] = Float.parseFloat(reader.read()); gamma[2] = Float.parseFloat(reader.read());
+            noiseStd = Float.parseFloat(reader.read());
+        } catch (Exception e) {
+            e.printStackTrace();
             return;
         }
     }

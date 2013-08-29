@@ -98,9 +98,11 @@ public class ParametersUI implements ChangeListener {
         importButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 uiParameters.deserialize(parametersField.getText());
+                sliderListenerActive = false;
                 updateSliders();
                 updateFields();
                 pUpdate.setUpdate(uiParameters);
+                sliderListenerActive = true;
             }
         });
         advancedApplyButton.addActionListener(new ActionListener() {
@@ -134,7 +136,7 @@ public class ParametersUI implements ChangeListener {
             uiParameters.contrast[1] = ((float) sliderContrast.getValue()/1000.0f);
             uiParameters.contrast[2] = ((float) sliderContrast.getValue()/1000.0f);
         }
-        uiParameters.rotateAngle = (Math.PI * (double) sliderRotate.getValue()/500.0);
+        uiParameters.rotateAngle = ((double) sliderRotate.getValue()/500.0);
         uiParameters.scaleFactor = ((double) sliderScale.getValue() / 100.0);
         uiParameters.unsharpWeight = ((float) sliderUnsharpWeight.getValue()/100.0f);
         uiParameters.unsharpRadius = ((float) sliderUnsharpRadius.getValue() / 100.0f);
@@ -192,17 +194,17 @@ public class ParametersUI implements ChangeListener {
     }
 
     private void updateSliders() {
-        sliderRotate.setValue((int)(500.0*uiParameters.rotateAngle/Math.PI));
-        sliderScale.setValue((int)(100*uiParameters.scaleFactor));
-        sliderContrast.setValue((int)(1000*uiParameters.contrast[0]));
-        sliderBrightness.setValue((int)(1000*uiParameters.brightness[0]));
-        sliderGammaR.setValue((int)(1000*uiParameters.gamma[0]));
-        sliderGammaG.setValue((int)(1000*uiParameters.gamma[1]));
-        sliderGammaB.setValue((int)(1000*uiParameters.gamma[2]));
-        sliderBokehRadius.setValue((int) (100 * uiParameters.blurRadius));
-        sliderUnsharpRadius.setValue((int) (100 * uiParameters.unsharpRadius));
-        sliderUnsharpWeight.setValue((int) (100 * uiParameters.unsharpWeight));
-        sliderNoise.setValue((int) (Math.log10(uiParameters.noiseStd) * 100.0));
+        sliderRotate.setValue((int)Math.round(500.0*uiParameters.rotateAngle));
+        sliderScale.setValue((int)Math.round(100*uiParameters.scaleFactor));
+        sliderContrast.setValue((int)Math.round(1000*uiParameters.contrast[0]));
+        sliderBrightness.setValue((int)Math.round(1000*uiParameters.brightness[0]));
+        sliderGammaR.setValue((int)Math.round(1000*uiParameters.gamma[0]));
+        sliderGammaG.setValue((int)Math.round(1000*uiParameters.gamma[1]));
+        sliderGammaB.setValue((int)Math.round(1000*uiParameters.gamma[2]));
+        sliderBokehRadius.setValue((int) Math.round(100 * uiParameters.blurRadius));
+        sliderUnsharpRadius.setValue((int) Math.round(100 * uiParameters.unsharpRadius));
+        sliderUnsharpWeight.setValue((int) Math.round(100 * uiParameters.unsharpWeight));
+        sliderNoise.setValue((int) Math.round(Math.log10(uiParameters.noiseStd) * 100.0));
     }
 
     private void updateFields() {
