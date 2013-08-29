@@ -167,16 +167,17 @@ import static org.lwjgl.opengl.Util.checkGLError;
             Display.update();
             sharedGlData.release();
 
-            while(Keyboard.next()) {
-                if(Keyboard.getEventKeyState()) {
-                    runToggle = !runToggle;
-                }
-            }
-            if(runToggle || (Mouse.isButtonDown(0) && !mouseStatus[0])) {
+            if(runToggle) {
                 imageData.readFrame();
             }
-            mouseStatus[0] = Mouse.isButtonDown(0);
-            mouseStatus[1] = Mouse.isButtonDown(1);
+            while(Mouse.next()) {
+                if(Mouse.getEventButtonState()) {
+                    if(Mouse.isButtonDown(0))
+                        runToggle = !runToggle;
+                    if(Mouse.isButtonDown(1) && !runToggle)
+                        imageData.readFrame();
+                }
+            }
             closeRequested = Display.isCloseRequested();
         }
         sharedGlData.finished = true;

@@ -180,7 +180,7 @@ public class ParametersUI implements ChangeListener {
             String info = "";
             info += "FPS: " + String.format("%.1f", clInfo.fps) + "\n\n";
             info += "Recur v1.0 by Fletcher Dostie\n\n";
-            info += "Press any key to pause.\nClick while paused to advance one frame.\n\n";
+            info += "Left click to pause.\nRight click while paused to advance one frame.\n\n";
             info += "OpenCL Device: " + clInfo.device + "\n";
             info += "OpenCL Version: " + clInfo.version + "\n";
             info += "OpenCL Device Memory Size: " + clInfo.memSize/(1024*1024) + " MB\n";

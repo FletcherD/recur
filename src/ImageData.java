@@ -34,20 +34,10 @@ public class ImageData {
         return PBids[i];
     }
     public synchronized int getBuffer() {
-        while(!initialized) {
-            try {
-                wait();
-            } catch (InterruptedException e) {e.printStackTrace(); }
-        }
-        return PBids[getFlip()];
+        return getBuffer(getFlip());
     }
     public synchronized int getWorkingBuffer() {
-        while(!initialized) {
-            try {
-                wait();
-            } catch (InterruptedException e) {e.printStackTrace(); }
-        }
-        return PBids[getWorkingFlip()];
+        return getBuffer(getWorkingFlip());
     }
     public synchronized int getFrameNum() {
         return frameNum;
@@ -59,12 +49,14 @@ public class ImageData {
         return (flip+1)%2;
     }
 
-    public synchronized void flipBuffers() {
+    public synchronized void waitForRead() {
         while(lastReadFrame < frameNum) {
             try {
                 wait();
             } catch (InterruptedException e) {e.printStackTrace();}
         }
+    }
+    public synchronized void flipBuffers() {
         flip = (flip+1)%2;
         frameNum++;
         notifyAll();

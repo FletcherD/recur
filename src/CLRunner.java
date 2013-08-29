@@ -172,7 +172,7 @@ public class CLRunner implements Runnable {
                 changeParameters();
                 continue;
             }
-            status = flipBuffers();
+            status = iterate();
             frames++;
             long timeUsed = System.currentTimeMillis() - startTime;
             if (timeUsed >= 1000) {
@@ -187,7 +187,7 @@ public class CLRunner implements Runnable {
         dispose();
     }
 
-    public boolean flipBuffers() {
+    public boolean iterate() {
         clFinish(randomQueue);
         clEnqueueNDRangeKernel(iterateQueue, gammaKernel, 1, null, kernelPixelWorkSize, null, null, null);
         clEnqueueNDRangeKernel(iterateQueue, blurKernel, 1, null, kernelPixelWorkSize, null, null, null);
@@ -204,6 +204,7 @@ public class CLRunner implements Runnable {
         clFinish(iterateQueue);
         sharedGlData.release();
 
+        imageData.waitForRead();
         imageData.flipBuffers();
 
         if(parameters.noiseOn) {
