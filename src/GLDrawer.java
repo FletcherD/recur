@@ -28,6 +28,7 @@ import static org.lwjgl.opengl.Util.checkGLError;
     int textureID;
     boolean mouseStatus[] = { false, false };
     boolean runToggle = true;
+    boolean vSync = false;
     Recur.SharedGlData sharedGlData;
 
     Parameters parameters;
@@ -56,7 +57,7 @@ import static org.lwjgl.opengl.Util.checkGLError;
         Display.setDisplayMode(new DisplayMode(parameters.width*zoom, parameters.height*zoom));
         oldWidth = parameters.width*zoom; oldHeight = parameters.height*zoom;
         Display.setTitle("Recur");
-        Display.setVSyncEnabled(false);
+        Display.setVSyncEnabled(vSync);
         Display.setResizable(true);
         Display.create();
 
@@ -176,6 +177,12 @@ import static org.lwjgl.opengl.Util.checkGLError;
                         runToggle = !runToggle;
                     if(Mouse.isButtonDown(1) && !runToggle)
                         imageData.readFrame();
+                }
+            }
+            while(Keyboard.next()) {
+                if(Keyboard.getEventKeyState()) {
+                    vSync = !vSync;
+                    Display.setVSyncEnabled(vSync);
                 }
             }
             closeRequested = Display.isCloseRequested();
