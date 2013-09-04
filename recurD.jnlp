@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp spec="1.0+" codebase=
+"http://fletcherd.github.io/recur" 
+    href="recurD.jnlp">
+    <information>
+        <title>Recur Debug Version</title>
+        <vendor>Fletcher Dostie</vendor>
+    </information>
+    <resources>
+        <!-- Application Resources -->
+        <j2se version="1.7+"
+              href="http://java.sun.com/products/autodl/j2se"/>
+        <jar href="RecurD.jar"
+            main="true" />
+        <extension name="lwjgl" href="http://lwjgl.org/webstart/2.9.0/extension.jnlp" />
+		
+    </resources>
+    <application-desc
+         name="Recur"
+         main-class=
+           "Recur">
+     </application-desc>
+     <update check="background"/>
+</jnlp>        
