@@ -1,10 +1,7 @@
-import org.lwjgl.opencl.Util;
-import org.lwjgl.opencl.CLMem;
-import org.lwjgl.opencl.CLCommandQueue;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
-import org.lwjgl.opencl.CLProgram;
-import org.lwjgl.opencl.CLKernel;
+import org.lwjgl.opencl.*;
+import org.lwjgl.opencl.api.Filter;
 
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -102,10 +99,22 @@ public class CLRunner implements Runnable {
         Drawable drawable = sharedGlData.get();
         CL.create();
         platform = CLPlatform.getPlatforms().get(0);
-        devices = platform.getDevices(CL_DEVICE_TYPE_GPU);
-        if(devices == null || devices.isEmpty()) {
-            throw new Exception("Sorry, but Recur can't run because you don't have a graphics card that supports OpenCL.");
+
+        // Find an OpenCL device that supports OpenGL sharing
+        final Filter<CLDevice> glSharingFilter = new Filter<CLDevice>() {
+            public boolean accept(final CLDevice device) {
+                final CLDeviceCapabilities caps = CLCapabilities.getDeviceCapabilities(device);
+                return caps.CL_KHR_gl_sharing;
+            }
+        };
+        devices = platform.getDevices(CL_DEVICE_TYPE_GPU, glSharingFilter);
+        if ( devices == null ) {
+            devices = platform.getDevices(CL_DEVICE_TYPE_CPU, glSharingFilter);
+            if ( devices == null )
+                throw new RuntimeException("No OpenCL devices found with OpenGL sharing support.\n" +
+                        "Either you don't have a graphics card, you don't have its OpenCL drivers, or this is my fault. I'm sorry!");
         }
+
         IntBuffer err = BufferUtils.createIntBuffer(1);
         context = CLContext.create(platform, devices, null, drawable, err);
         Util.checkCLError(err.get(0));
