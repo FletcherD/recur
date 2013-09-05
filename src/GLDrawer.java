@@ -179,12 +179,6 @@ import static org.lwjgl.opengl.Util.checkGLError;
                         imageData.readFrame();
                 }
             }
-            while(Keyboard.next()) {
-                if(Keyboard.getEventKeyState()) {
-                    vSync = !vSync;
-                    Display.setVSyncEnabled(vSync);
-                }
-            }
             closeRequested = Display.isCloseRequested();
         }
         sharedGlData.finished = true;

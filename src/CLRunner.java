@@ -166,15 +166,24 @@ public class CLRunner implements Runnable {
             return;
         }
         long startTime = System.currentTimeMillis();
+        long lastFrame = startTime;
         while(status && !sharedGlData.finished && !sharedGlData.restart)
         {
             if(parameterUpdate.getUpdate()) {
                 changeParameters();
                 continue;
             }
+            while(System.currentTimeMillis() - lastFrame < (1000f/parameters.fpsLimit)) {
+                try {
+                    wait();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
             status = iterate();
             frames++;
-            long timeUsed = System.currentTimeMillis() - startTime;
+            lastFrame = System.currentTimeMillis();
+            long timeUsed = lastFrame - startTime;
             if (timeUsed >= 1000) {
                 System.out.println(frames + " frames rendered in " + timeUsed / 1000f + " seconds = "
                         + (frames / (timeUsed / 1000f)));

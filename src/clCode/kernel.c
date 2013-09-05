@@ -165,8 +165,8 @@ kernel void createBlurMatrices(global float *blurMatrices, global int2 *position
 
 __inline__ float chordArea(float r, float d)
 {
-    float area = pow(r,2.0)*acos(d/r);
-    area -= d * sqrt(pow(r,2.0) - pow(d,2.0));
+    float area = native_powr(r,2.0f) * acos(d/r);
+    area -= d * sqrt(native_powr(r,2.0f) - native_powr(d,2.0f));
     return area;
 }
 
@@ -176,7 +176,7 @@ kernel void createBokehMatrices(global float *blurMatrices, global int2 *positio
     float yPos = (float)(xid/WIDTH) - cParams->center.y;
     float xPos = (oldxPos*rMatrix[1]) - (yPos*rMatrix[0]) + cParams->center.x;
           yPos = (oldxPos*rMatrix[0]) + (yPos*rMatrix[1]) + cParams->center.y;
-    float pixelRadius = hypot(rMatrix[0], rMatrix[1])/2.0;
+    float pixelRadius = hypot(rMatrix[0], rMatrix[1])/2.0f;
 
     if(xPos >= -(MSIZE) && xPos < WIDTH+(MSIZE) && yPos >= -(MSIZE) && yPos < HEIGHT+(MSIZE))
     {
@@ -185,20 +185,20 @@ kernel void createBokehMatrices(global float *blurMatrices, global int2 *positio
         matrixPos.y = round(yPos) - MSIZE/2;
         positions[xid] = matrixPos;
         unsigned int matrixIdx = xid * MSIZE * MSIZE;
-        float sum = 0;
+        float sum = 0f;
         for(int m = 0; m < MSIZE; m++) {
             for(int n = 0; n < MSIZE; n++) {
                 float x = matrixPos.x+m - xPos;
                 float y = matrixPos.y+n - yPos;
                 float d = hypot(x, y);
-                float entry = 0;
+                float entry = 0f;
                 if(d <= cParams->blurR - pixelRadius) {
-                    entry = M_PI*pow(pixelRadius,2.0);
+                    entry = M_PI*native_powr(pixelRadius,2.0f);
                 } else if(d <= pixelRadius - cParams->blurR) {
-                    entry = M_PI*pow(cParams->blurR,2.0);
+                    entry = M_PI*native_powr(cParams->blurR,2.0f);
                 } else if(d < cParams->blurR + pixelRadius) {
-                    float bSegHeight = pow(d,2.0) - pow(pixelRadius,2.0) + pow(cParams->blurR,2.0);
-                    bSegHeight /= (2.0*d);
+                    float bSegHeight = native_powr(d,2.0f) - native_powr(pixelRadius,2.0f) + native_powr(cParams->blurR,2.0f);
+                    bSegHeight /= (2.0f*d);
                     entry = chordArea(cParams->blurR,bSegHeight) + chordArea(pixelRadius,d-bSegHeight);
                 } else {
                     blurMatrices[matrixIdx+(n*MSIZE)+m] = 0;
@@ -210,7 +210,8 @@ kernel void createBokehMatrices(global float *blurMatrices, global int2 *positio
         }
         for(int m = 0; m < MSIZE; m++) {
             for(int n = 0; n < MSIZE; n++) {
-                blurMatrices[matrixIdx+(n*MSIZE)+m] /= 0.785 * (hypot(rMatrix[0], rMatrix[1])) * M_PI*pow(cParams->blurR,2.0);
+                blurMatrices[matrixIdx+(n*MSIZE)+m] /=
+                    0.785f * (hypot(rMatrix[0], rMatrix[1])) * M_PI*native_powr(cParams->blurR,2.0f);
             }
         }
     }
@@ -270,7 +271,7 @@ __inline__ float erfinv(float x)
 
 kernel void createGaussianLookup(global float *gaussianLookup, __constant float *stdev) {
     const int N = 1024;
-    const float xLim = 0.990;
+    const float xLim = 0.990f;
     unsigned int xid = get_global_id(0);
     float x = -xLim + (2*xLim/((float)(N-1)))*xid;
     gaussianLookup[xid] = sqrt(2.0f) * stdev[0] * erfinv(x);

@@ -13,6 +13,7 @@ public class Parameters
     transient int width;
     transient int height;
     float[] center;
+    transient int fpsLimit;
 
     double rotateAngle;
     double scaleFactor;
@@ -37,6 +38,7 @@ public class Parameters
         width = 300;
         height = 300;
         center = new float[]{(float)(Math.floor(width/2.0)+0.25), (float)(Math.floor(height/2.0)+0.25)};
+        fpsLimit = 60;
         rotateAngle = (1.0/5.0);
         scaleFactor = 1.15;
         matrixSize = 5;
@@ -63,6 +65,7 @@ public class Parameters
         width = in.width;
         height = in.height;
         center = in.center.clone();
+        fpsLimit = in.fpsLimit;
         rotateAngle = in.rotateAngle;
         scaleFactor = in.scaleFactor;
         matrixSize = in.matrixSize;

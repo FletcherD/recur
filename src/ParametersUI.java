@@ -40,7 +40,6 @@ public class ParametersUI implements ChangeListener {
     private JFormattedTextField fieldWidth;
     private JFormattedTextField fieldMatrixSize;
     private JFormattedTextField fieldHeight;
-    private JCheckBox checkBoxNoise;
     private JFormattedTextField fieldCenterY;
     private JFormattedTextField fieldCenterX;
     private JFormattedTextField fieldRotation;
@@ -60,6 +59,7 @@ public class ParametersUI implements ChangeListener {
     private JFormattedTextField fieldNoiseStdev;
     private JButton advancedApplyButton;
     private JTextPane clInfoPane;
+    private JFormattedTextField fieldFps;
 
     public ParametersUI(Recur.SharedParameterUpdate in, int mainWidth, int mainHeight) {
         pUpdate = in;
@@ -166,7 +166,7 @@ public class ParametersUI implements ChangeListener {
         uiParameters.center[0] = ((Number)fieldCenterX.getValue()).floatValue();
         uiParameters.center[1] = ((Number)fieldCenterY.getValue()).floatValue();
 
-        uiParameters.noiseOn = checkBoxNoise.isSelected();
+        uiParameters.fpsLimit = ((Number)fieldFps.getValue()).intValue();
         uiParameters.matrixSize = ((Number)fieldMatrixSize.getValue()).intValue();
         uiParameters.width = ((Number)fieldWidth.getValue()).intValue();
         uiParameters.height = ((Number)fieldHeight.getValue()).intValue();
@@ -182,7 +182,7 @@ public class ParametersUI implements ChangeListener {
             String info = "";
             info += "FPS: " + String.format("%.1f", clInfo.fps) + "\n\n";
             info += "Recur v1.0 by Fletcher Dostie\n\n";
-            info += "Left click to pause.\nRight click while paused to advance one frame.\nPress any key to toggle frame rate limiter.\n\n";
+            info += "Left click to pause.\nRight click while paused to advance one frame.\n\n";
             info += "OpenCL Device: " + clInfo.device + "\n";
             info += "OpenCL Version: " + clInfo.version + "\n";
             info += "OpenCL Device Memory Size: " + clInfo.memSize/(1024*1024) + " MB\n";
@@ -211,7 +211,6 @@ public class ParametersUI implements ChangeListener {
         fieldWidth.setValue(uiParameters.width);
         fieldHeight.setValue(uiParameters.height);
         fieldMatrixSize.setValue(uiParameters.matrixSize);
-        checkBoxNoise.setSelected(uiParameters.noiseOn);
         fieldNoiseStdev.setEnabled(uiParameters.noiseOn);
 
         fieldCenterX.setValue(uiParameters.center[0]);
@@ -259,6 +258,7 @@ public class ParametersUI implements ChangeListener {
         fieldMatrixSize.setFormatterFactory(integerFormatterFactory);
         fieldWidth.setFormatterFactory(integerFormatterFactory);
         fieldHeight.setFormatterFactory(integerFormatterFactory);
+        fieldFps.setFormatterFactory(integerFormatterFactory);
         fieldCenterX.setFormatterFactory(decimalFormatterFactory);
         fieldCenterY.setFormatterFactory(decimalFormatterFactory);
         fieldFocalRadius.setFormatterFactory(decimalFormatterFactory);
