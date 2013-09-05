@@ -211,6 +211,7 @@ public class ParametersUI implements ChangeListener {
         fieldWidth.setValue(uiParameters.width);
         fieldHeight.setValue(uiParameters.height);
         fieldMatrixSize.setValue(uiParameters.matrixSize);
+        fieldFps.setValue(uiParameters.fpsLimit);
         fieldNoiseStdev.setEnabled(uiParameters.noiseOn);
 
         fieldCenterX.setValue(uiParameters.center[0]);

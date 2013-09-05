@@ -1,5 +1,5 @@
 //NOISE_DEFINE
-#define M_PI 3.14159265358979323846264338327950288419716939937510582
+#define M_PI 3.14159265358979323846264338327950288419716939937510582f
 __constant float3 centerColor = {0.5f, 0.5f, 0.5f};
 
 struct ColorParams
@@ -123,9 +123,68 @@ kernel void advanceRandomNumbers(global ulong *random) {
 
 ///////    MATRIX COMPUTATION FUNCTIONS    ///////
 
+__inline__ float chordArea(float r, float d)
+{
+    float area = pow(r,2.0f) * acos(d/r);
+    area -= d * sqrt(pow(r,2.0f) - pow(d,2.0f));
+    return area;
+}
+
+kernel void createBokehMatrices(global float *blurMatrices, global int2 *positions, __constant float *rMatrix, __constant struct ColorParams *cParams) {
+    unsigned int xid = get_global_id(0);
+    float oldxPos = (float)(xid%WIDTH) - cParams->center.x;
+    float yPos = (float)(xid/WIDTH) - cParams->center.y;
+    float xPos = (oldxPos*rMatrix[1]) - (yPos*rMatrix[0]) + cParams->center.x;
+          yPos = (oldxPos*rMatrix[0]) + (yPos*rMatrix[1]) + cParams->center.y;
+    float pixelRadius = hypot(rMatrix[0], rMatrix[1])/2.0f;
+
+    if(xPos >= -(MSIZE) && xPos < WIDTH+(MSIZE) && yPos >= -(MSIZE) && yPos < HEIGHT+(MSIZE))
+    {
+        int2 matrixPos;
+        matrixPos.x = round(xPos) - MSIZE/2;
+        matrixPos.y = round(yPos) - MSIZE/2;
+        positions[xid] = matrixPos;
+        unsigned int matrixIdx = xid * MSIZE * MSIZE;
+        float sum = 0.0f;
+        for(int m = 0; m < MSIZE; m++) {
+            for(int n = 0; n < MSIZE; n++) {
+                float x = matrixPos.x+m - xPos;
+                float y = matrixPos.y+n - yPos;
+                float d = hypot(x, y);
+                float entry = 0.0f;
+                if(d <= cParams->blurR - pixelRadius) {
+                    entry = M_PI*native_powr(pixelRadius,2.0f);
+                } else if(d <= pixelRadius - cParams->blurR) {
+                    entry = M_PI*native_powr(cParams->blurR,2.0f);
+                } else if(d < cParams->blurR + pixelRadius) {
+                    float bSegHeight = native_powr(d,2.0f) - native_powr(pixelRadius,2.0f) + native_powr(cParams->blurR,2.0f);
+                    bSegHeight /= (2.0f * d);
+                    entry = chordArea(cParams->blurR,bSegHeight) + chordArea(pixelRadius,d-bSegHeight);
+                } else {
+                    blurMatrices[matrixIdx+(n*MSIZE)+m] = 0.0f;
+                    continue;
+                }
+                blurMatrices[matrixIdx+(n*MSIZE)+m] = entry;
+                sum += entry;
+            }
+        }
+        for(int m = 0; m < MSIZE; m++) {
+            for(int n = 0; n < MSIZE; n++) {
+                blurMatrices[matrixIdx+(n*MSIZE)+m] /=
+                    0.785f * (hypot(rMatrix[0], rMatrix[1])) * M_PI*native_powr(cParams->blurR,2.0f);
+            }
+        }
+    }
+    else
+    {
+        positions[xid].x = 0xFFFF;
+    }
+}
+
+/* Probably won't use this again - gaussian blur instead of bokeh
 kernel void createBlurMatrices(global float *blurMatrices, global int2 *positions, __constant float *rMatrix, __constant float *blurStd) {
-    const float XCENT = WIDTH/2.0;
-    const float YCENT = HEIGHT/2.0;
+    const float XCENT = WIDTH/2.0f;
+    const float YCENT = HEIGHT/2.0f;
 
     unsigned int xid = get_global_id(0);
     float oldxPos = (float)(xid%WIDTH) - XCENT;
@@ -141,7 +200,7 @@ kernel void createBlurMatrices(global float *blurMatrices, global int2 *position
         matrixPos.y = round(yPos) - MSIZE/2;
         positions[xid] = matrixPos;
         unsigned int matrixIdx = xid * MSIZE * MSIZE;
-        float sum = 0;
+        float sum = 0.0f;
         for(int m = 0; m < MSIZE; m++) {
             for(int n = 0; n < MSIZE; n++) {
                 float x = matrixPos.x+m - xPos;
@@ -162,64 +221,7 @@ kernel void createBlurMatrices(global float *blurMatrices, global int2 *position
         positions[xid].x = 0xFFFF;
     }
 }
-
-__inline__ float chordArea(float r, float d)
-{
-    float area = native_powr(r,2.0f) * acos(d/r);
-    area -= d * sqrt(native_powr(r,2.0f) - native_powr(d,2.0f));
-    return area;
-}
-
-kernel void createBokehMatrices(global float *blurMatrices, global int2 *positions, __constant float *rMatrix, __constant struct ColorParams *cParams) {
-    unsigned int xid = get_global_id(0);
-    float oldxPos = (float)(xid%WIDTH) - cParams->center.x;
-    float yPos = (float)(xid/WIDTH) - cParams->center.y;
-    float xPos = (oldxPos*rMatrix[1]) - (yPos*rMatrix[0]) + cParams->center.x;
-          yPos = (oldxPos*rMatrix[0]) + (yPos*rMatrix[1]) + cParams->center.y;
-    float pixelRadius = hypot(rMatrix[0], rMatrix[1])/2.0f;
-
-    if(xPos >= -(MSIZE) && xPos < WIDTH+(MSIZE) && yPos >= -(MSIZE) && yPos < HEIGHT+(MSIZE))
-    {
-        int2 matrixPos;
-        matrixPos.x = round(xPos) - MSIZE/2;
-        matrixPos.y = round(yPos) - MSIZE/2;
-        positions[xid] = matrixPos;
-        unsigned int matrixIdx = xid * MSIZE * MSIZE;
-        float sum = 0f;
-        for(int m = 0; m < MSIZE; m++) {
-            for(int n = 0; n < MSIZE; n++) {
-                float x = matrixPos.x+m - xPos;
-                float y = matrixPos.y+n - yPos;
-                float d = hypot(x, y);
-                float entry = 0f;
-                if(d <= cParams->blurR - pixelRadius) {
-                    entry = M_PI*native_powr(pixelRadius,2.0f);
-                } else if(d <= pixelRadius - cParams->blurR) {
-                    entry = M_PI*native_powr(cParams->blurR,2.0f);
-                } else if(d < cParams->blurR + pixelRadius) {
-                    float bSegHeight = native_powr(d,2.0f) - native_powr(pixelRadius,2.0f) + native_powr(cParams->blurR,2.0f);
-                    bSegHeight /= (2.0f*d);
-                    entry = chordArea(cParams->blurR,bSegHeight) + chordArea(pixelRadius,d-bSegHeight);
-                } else {
-                    blurMatrices[matrixIdx+(n*MSIZE)+m] = 0;
-                    continue;
-                }
-                blurMatrices[matrixIdx+(n*MSIZE)+m] = entry;
-                sum += entry;
-            }
-        }
-        for(int m = 0; m < MSIZE; m++) {
-            for(int n = 0; n < MSIZE; n++) {
-                blurMatrices[matrixIdx+(n*MSIZE)+m] /=
-                    0.785f * (hypot(rMatrix[0], rMatrix[1])) * M_PI*native_powr(cParams->blurR,2.0f);
-            }
-        }
-    }
-    else
-    {
-        positions[xid].x = 0xFFFF;
-    }
-}
+*/
 
 kernel void findParamOffsets(global int *offsets) {
     struct ColorParams cParams;
@@ -238,6 +240,7 @@ kernel void findParamOffsets(global int *offsets) {
 
 ///////    GAUSSIAN FUNCTIONS    ////////
 
+// approximate inverse error function
 __inline__ float erfinv(float x)
 {
     float w, p;

@@ -173,15 +173,9 @@ public class CLRunner implements Runnable {
                 changeParameters();
                 continue;
             }
-            while(System.currentTimeMillis() - lastFrame < (1000f/parameters.fpsLimit)) {
-                try {
-                    wait();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
             status = iterate();
             frames++;
+            while(System.currentTimeMillis() - lastFrame < (1000f/parameters.fpsLimit)) {}
             lastFrame = System.currentTimeMillis();
             long timeUsed = lastFrame - startTime;
             if (timeUsed >= 1000) {
