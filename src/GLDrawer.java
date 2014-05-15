@@ -31,11 +31,13 @@ import static org.lwjgl.opengl.Util.checkGLError;
     Recur.SharedGlData sharedGlData;
 
     Parameters parameters;
+    Recur.SharedParameterUpdate.Arguments arguments;
     int zoom;
     int oldWidth, oldHeight;
 
     public GLDrawer(ImageData inImageData, Recur.SharedParameterUpdate inParameters, Recur.SharedGlData inShared) {
         parameters = new Parameters(inParameters.parameters);
+        arguments = inParameters.arguments;
         imageData = inImageData;
         sharedGlData = inShared;
         try{
@@ -59,6 +61,7 @@ import static org.lwjgl.opengl.Util.checkGLError;
         Display.setVSyncEnabled(false);
         Display.setResizable(true);
         Display.create();
+        System.out.println(glGetString(GL_RENDERER));
 
         // Shows video memory, but only on Nvidia cards
         //        int totalMem = glGetInteger(0x9048 /*GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX*/);
@@ -117,8 +120,8 @@ import static org.lwjgl.opengl.Util.checkGLError;
             }
         }
         try {
-            String filePath = "C:\\";
-            ImageIO.write(image, "PNG", new File(filePath + "recur_screenshot.png"));
+            String filePath = System.getProperty("user.home");
+            ImageIO.write(image, "PNG", new File(filePath + "\\recur_screenshot.png"));
         } catch (IOException e) { e.printStackTrace(); }
     }
 
@@ -165,6 +168,10 @@ import static org.lwjgl.opengl.Util.checkGLError;
             glEnd();
 
             Display.update();
+            if(arguments.takeScreenshot && imageData.getFrameNum() >= arguments.framesUntilScreenshot) {
+                screenshot();
+                closeRequested = true;
+            }
             sharedGlData.release();
 
             while(Keyboard.next()) {
@@ -179,7 +186,7 @@ import static org.lwjgl.opengl.Util.checkGLError;
             }
             mouseStatus[0] = Mouse.isButtonDown(0);
             mouseStatus[1] = Mouse.isButtonDown(1);
-            closeRequested = Display.isCloseRequested();
+            closeRequested |= Display.isCloseRequested();
         }
         sharedGlData.finished = true;
         imageData.readFrame();

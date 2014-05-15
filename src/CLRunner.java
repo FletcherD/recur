@@ -1,10 +1,6 @@
-import org.lwjgl.opencl.Util;
-import org.lwjgl.opencl.CLMem;
-import org.lwjgl.opencl.CLCommandQueue;
+import org.lwjgl.opencl.*;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
-import org.lwjgl.opencl.CLProgram;
-import org.lwjgl.opencl.CLKernel;
 
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -15,17 +11,14 @@ import java.security.SecureRandom;
 import java.util.List;
 import java.io.*;
 
-import org.lwjgl.opencl.CL;
-import org.lwjgl.opencl.CLContext;
-import org.lwjgl.opencl.CLDevice;
-import org.lwjgl.opencl.CLPlatform;
-import org.lwjgl.opencl.CL10GL;
+import org.lwjgl.opencl.api.Filter;
 import org.lwjgl.opengl.Drawable;
 
 import javax.swing.*;
 
 import static org.lwjgl.opencl.CL10.*;
 import static org.lwjgl.opencl.CL10.clEnqueueNDRangeKernel;
+import static org.lwjgl.opencl.KHRGLSharing.clGetGLContextInfoKHR;
 import static org.lwjgl.opengl.GL11.*;
 
 /**
@@ -99,9 +92,25 @@ public class CLRunner implements Runnable {
     }
 
     private void init() throws Exception {
-        Drawable drawable = sharedGlData.get();
+        final Drawable drawable = sharedGlData.get();
         CL.create();
-        platform = CLPlatform.getPlatforms().get(0);
+        List<CLPlatform> platforms = CLPlatform.getPlatforms();
+        // Find devices with GL sharing support
+        final Filter<CLDevice> glSharingFilter = new Filter<CLDevice>() {
+            public boolean accept(final CLDevice device) {
+                final CLDeviceCapabilities caps = CLCapabilities.getDeviceCapabilities(device);
+                return caps.CL_KHR_gl_sharing;
+            }
+        };
+        for(CLPlatform p : platforms) {
+            List<CLDevice> devices = p.getDevices(CL_DEVICE_TYPE_GPU, glSharingFilter);
+            if(devices.isEmpty())
+                continue;
+            CLDevice device = devices.get(0);
+            System.out.println(device.getInfoString(CL_DEVICE_NAME));
+            System.out.println(device.getInfoBoolean(CL_DEVICE_AVAILABLE));
+        }
+        platform = platforms.get(platforms.size() - 1);
         devices = platform.getDevices(CL_DEVICE_TYPE_GPU);
         if(devices == null || devices.isEmpty()) {
             throw new Exception("Sorry, but Recur can't run because you don't have a graphics card that supports OpenCL.");
@@ -172,9 +181,10 @@ public class CLRunner implements Runnable {
             frames++;
             long timeUsed = System.currentTimeMillis() - startTime;
             if (timeUsed >= 1000) {
-                System.out.println(frames + " frames rendered in " + timeUsed / 1000f + " seconds = "
-                        + (frames / (timeUsed / 1000f)));
+                //System.out.println(frames + " frames rendered in " + timeUsed / 1000f + " seconds = "
+                //        + (frames / (timeUsed / 1000f)));
                 parameterUpdate.clInfo.fps = (frames / (timeUsed / 1000f));
+                parameterUpdate.clInfo.elapsedTime += timeUsed;
                 parameterUpdate.clInfo.update = true;
                 startTime = System.currentTimeMillis();
                 frames = 0;

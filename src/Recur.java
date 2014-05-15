@@ -2,6 +2,10 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.Drawable;
 
+import java.io.File;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -72,9 +76,15 @@ public class Recur {
         public Parameters parameters;
         public Parameters oldParameters;
         boolean update=false;
+        public class Arguments {
+            boolean takeScreenshot=false;
+            int framesUntilScreenshot;
+        }
+        public Arguments arguments;
 
         public class ClInformation {
             float fps;
+            float elapsedTime=0;
             String device;
             String version;
             long memSize;
@@ -87,6 +97,22 @@ public class Recur {
         SharedParameterUpdate() {
             parameters = new Parameters();
             clInfo = new ClInformation();
+            arguments = new Arguments();
+        }
+        SharedParameterUpdate(String[] args) {
+            parameters = new Parameters();
+            clInfo = new ClInformation();
+            arguments = new Arguments();
+            if(args.length == 0) {
+                return;
+            }
+            try {
+                String data = args[0];
+                parameters.deserialize(data);
+            } catch (Exception e) {
+                System.err.println("Argument error: " + e.getMessage());
+                System.exit(1);
+            }
         }
 
         public synchronized void setUpdate(Parameters in){
@@ -105,12 +131,17 @@ public class Recur {
             return false;
         }
     }
-    SharedParameterUpdate parameterUpdate = new SharedParameterUpdate();
+    SharedParameterUpdate parameterUpdate;
     ParametersUI parametersUI = null;
 
     public static void main(String[] args) {
-        new Recur().execute();
+        Recur rApp = new Recur(args);
+        rApp.execute();
         System.exit(0);
+    }
+
+    Recur(String[] args) {
+        parameterUpdate = new SharedParameterUpdate(args);
     }
 
     /**
@@ -122,7 +153,7 @@ public class Recur {
             imageData = new ImageData();
 
             glDrawer = new GLDrawer(imageData, parameterUpdate, sharedGlData);
-            glThread = new Thread((glDrawer));
+            glThread = new Thread(glDrawer);
             glThread.start();
 
             clRunner = new CLRunner(imageData, parameterUpdate, sharedGlData);

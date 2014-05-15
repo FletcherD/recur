@@ -1,12 +1,26 @@
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.metadata.*;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
 import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.text.DecimalFormat;
+import java.net.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,7 +32,7 @@ import java.text.DecimalFormat;
 public class ParametersUI implements ChangeListener {
     private Parameters uiParameters;
     private Recur.SharedParameterUpdate pUpdate;
-    private boolean sliderListenerActive;
+    private boolean changeListenerActive;
 
     private JSlider sliderScale;
     private JPanel jPanel;
@@ -60,13 +74,104 @@ public class ParametersUI implements ChangeListener {
     private JFormattedTextField fieldNoiseStdev;
     private JButton advancedApplyButton;
     private JTextPane clInfoPane;
+    private JButton shareButton;
+    private static String shareServer="http://127.0.0.1:8000/recur/";
+
+    public class GifMetadata {
+        private boolean valid;
+        private String comment;
+
+        public GifMetadata(String filename) throws IOException {
+            try {
+                ImageReader reader = ImageIO.getImageReadersBySuffix("gif").next();
+                reader.setInput(ImageIO.createImageInputStream(new FileInputStream(filename)));
+
+                IIOMetadata imageMetaData = reader.getImageMetadata(0);
+                String metaFormatName = imageMetaData.getNativeMetadataFormatName();
+                IIOMetadataNode root = (IIOMetadataNode) imageMetaData.getAsTree(metaFormatName);
+                IIOMetadataNode commentExtensionsNode = getNode(root, "CommentExtensions");
+                Node commentNode = commentExtensionsNode.getChildNodes().item(0);
+                comment = commentNode.getAttributes().item(0).getNodeValue();
+                valid = true;
+            } catch (Exception e) {
+                valid = false;
+            }
+        }
+
+        public boolean isValid() { return valid; }
+        public String getComment() { return comment; }
+
+        private IIOMetadataNode getNode(IIOMetadataNode rootNode, String nodeName) {
+            int nNodes = rootNode.getLength();
+            for (int i = 0; i < nNodes; i++) {
+                if (rootNode.item(i).getNodeName().compareToIgnoreCase(nodeName)== 0) {
+                    return((IIOMetadataNode) rootNode.item(i));
+                }
+            }
+            IIOMetadataNode node = new IIOMetadataNode(nodeName);
+            rootNode.appendChild(node);
+            return(node);
+        }
+    }
+
+    public class ParametersFrame extends JFrame {
+        private TransferHandler handler = new TransferHandler() {
+            public boolean canImport(TransferHandler.TransferSupport support) {
+                if (!support.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+                    return false;
+                }
+                boolean copySupported = (COPY & support.getSourceDropActions()) == COPY;
+                if (!copySupported) {
+                    return false;
+                }
+                support.setDropAction(COPY);
+                return true;
+            }
+
+            public boolean importData(TransferHandler.TransferSupport support) {
+                if (!canImport(support)) {
+                    return false;
+                }
+                Transferable t = support.getTransferable();
+                try {
+                    java.util.List<File> l =
+                            (java.util.List<File>)t.getTransferData(DataFlavor.javaFileListFlavor);
+                    for (File f : l) {
+                        System.out.println(f.getAbsolutePath());
+                        GifMetadata gifData = new GifMetadata(f.getAbsolutePath());
+                        if(gifData.isValid()) {
+                            try {
+                                uiParameters.deserialize(gifData.getComment());
+                            } catch (Exception err) {
+                                System.out.println("Invalid parameter string!");
+                                return false;
+                            }
+                            updateSliders();
+                            updateFields();
+                            pUpdate.setUpdate(uiParameters);
+                        }
+                    }
+                } catch (UnsupportedFlavorException e) {
+                    return false;
+                } catch (IOException e) {
+                    return false;
+                }
+                return true;
+            }
+        };
+
+        public ParametersFrame() {
+            super("Parameters");
+            setTransferHandler(handler);
+        }
+    }
 
     public ParametersUI(Recur.SharedParameterUpdate in, int mainWidth, int mainHeight) {
         pUpdate = in;
         uiParameters = new Parameters(in.parameters);
-        sliderListenerActive = true;
+        changeListenerActive = true;
 
-        JFrame frame = new JFrame("Parameters");
+        ParametersFrame frame = new ParametersFrame();
         frame.setContentPane(jPanel);
         frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         frame.pack();
@@ -92,15 +197,35 @@ public class ParametersUI implements ChangeListener {
         sliderNoise.addChangeListener(this);
         exportButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                parametersField.setText(uiParameters.serialize());
+                try {
+                    parametersField.setText(uiParameters.serialize());
+                } catch (Exception err) {
+                    System.out.println("Error while serializing parameters!! WTF?");
+                }
             }
         });
         importButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                uiParameters.deserialize(parametersField.getText());
+                try {
+                    uiParameters.deserialize(parametersField.getText());
+                } catch (Exception err) {
+                    System.out.println("Invalid parameter string!");
+                }
                 updateSliders();
                 updateFields();
                 pUpdate.setUpdate(uiParameters);
+            }
+        });
+        shareButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    String parameterString = uiParameters.serialize();
+                    URL submitURL = new URL(shareServer + parameterString);
+                    submitURL.openStream();
+                    parametersField.setText("Check the website for your submission.");
+                } catch (Exception err) {
+                    System.out.println("Invalid parameter string!");
+                }
             }
         });
         advancedApplyButton.addActionListener(new ActionListener() {
@@ -119,7 +244,7 @@ public class ParametersUI implements ChangeListener {
     }
 
     private void sliderChanged(boolean updateBrightness, boolean updateContrast) {
-        if(!sliderListenerActive)
+        if(!changeListenerActive)
             return;
         uiParameters.gamma[0] = ((float) sliderGammaR.getValue()/1000.0f);
         uiParameters.gamma[1] = ((float) sliderGammaG.getValue()/1000.0f);
@@ -146,6 +271,8 @@ public class ParametersUI implements ChangeListener {
     }
 
     private void fieldChanged() {
+        if(!changeListenerActive)
+            return;
         uiParameters.contrast[0] = ((Number)fieldContrastR.getValue()).floatValue();
         uiParameters.contrast[1] = ((Number)fieldContrastG.getValue()).floatValue();
         uiParameters.contrast[2] = ((Number)fieldContrastB.getValue()).floatValue();
@@ -169,9 +296,7 @@ public class ParametersUI implements ChangeListener {
         uiParameters.width = ((Number)fieldWidth.getValue()).intValue();
         uiParameters.height = ((Number)fieldHeight.getValue()).intValue();
 
-        sliderListenerActive = false;
         updateSliders();
-        sliderListenerActive = true;
         pUpdate.setUpdate(uiParameters);
     }
 
@@ -190,6 +315,7 @@ public class ParametersUI implements ChangeListener {
     }
 
     private void updateSliders() {
+        changeListenerActive = false;
         sliderRotate.setValue((int)(500.0*uiParameters.rotateAngle/Math.PI));
         sliderScale.setValue((int)(100*uiParameters.scaleFactor));
         sliderContrast.setValue((int)(1000*uiParameters.contrast[0]));
@@ -201,9 +327,11 @@ public class ParametersUI implements ChangeListener {
         sliderUnsharpRadius.setValue((int) (100 * uiParameters.unsharpRadius));
         sliderUnsharpWeight.setValue((int) (100 * uiParameters.unsharpWeight));
         sliderNoise.setValue((int) (Math.log10(uiParameters.noiseStd) * 100.0));
+        changeListenerActive = true;
     }
 
     private void updateFields() {
+        changeListenerActive = false;
         fieldWidth.setValue(uiParameters.width);
         fieldHeight.setValue(uiParameters.height);
         fieldMatrixSize.setValue(uiParameters.matrixSize);
@@ -232,6 +360,7 @@ public class ParametersUI implements ChangeListener {
         fieldUnsharpRadius.setValue(uiParameters.unsharpRadius);
         fieldUnsharpWeight.setValue(uiParameters.unsharpWeight);
         fieldNoiseStdev.setValue(uiParameters.noiseStd);
+        changeListenerActive = true;
     }
 
     private void setupFields() {

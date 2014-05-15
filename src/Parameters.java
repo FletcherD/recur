@@ -1,7 +1,4 @@
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -39,7 +36,7 @@ public class Parameters implements java.io.Serializable
     Parameters() {
         width = 300;
         height = 300;
-        center = new float[]{(float)(Math.floor(width/2.0)+0.25), (float)(Math.floor(height/2.0)+0.25)};
+        center = new float[]{0.25f, 0.25f};
         rotateAngle = Math.PI * (1.0/5.0);
         scaleFactor = 1.15;
         matrixSize = 5;
@@ -94,34 +91,22 @@ public class Parameters implements java.io.Serializable
         noiseStd = in.noiseStd;
     }
 
-    public String serialize() {
-        try{
-            ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-            ObjectOutputStream objectStream = new ObjectOutputStream(outStream);
-            objectStream.writeObject(this);
-            String paramString =
+    public String serialize() throws Exception {
+        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        ObjectOutputStream objectStream = new ObjectOutputStream(outStream);
+        objectStream.writeObject(this);
+        String paramString =
                 com.sun.org.apache.xerces.internal.impl.dv.util.Base64.encode(outStream.toByteArray());
-            return paramString;
-        }catch(java.io.IOException i)
-        {
-            i.printStackTrace();
-            return null;
-        }
+        return paramString;
     }
 
-    public void deserialize(String in) {
-        try{
-            byte[] byteArray =
+    public void deserialize(String in) throws Exception {
+        byte[] byteArray =
                 com.sun.org.apache.xerces.internal.impl.dv.util.Base64.decode(in);
-            ByteArrayInputStream inStream = new ByteArrayInputStream(byteArray);
-            ObjectInputStream objectStream = new ObjectInputStream(inStream);
-            Parameters p = (Parameters) objectStream.readObject();
-            partialClone(p);
-        }catch(Exception i)
-        {
-            i.printStackTrace();
-            return;
-        }
+        ByteArrayInputStream inStream = new ByteArrayInputStream(byteArray);
+        ObjectInputStream objectStream = new ObjectInputStream(inStream);
+        Parameters p = (Parameters) objectStream.readObject();
+        partialClone(p);
     }
 
     public float[] getBorderColorGamma() {
