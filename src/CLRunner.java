@@ -2,6 +2,7 @@ import org.lwjgl.opencl.*;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 
+import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -14,10 +15,12 @@ import java.io.*;
 import org.lwjgl.opencl.api.Filter;
 import org.lwjgl.opengl.Drawable;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import static org.lwjgl.opencl.CL10.*;
 import static org.lwjgl.opencl.CL10.clEnqueueNDRangeKernel;
+import static org.lwjgl.opencl.CL10.clEnqueueReadBuffer;
 import static org.lwjgl.opencl.KHRGLSharing.clGetGLContextInfoKHR;
 import static org.lwjgl.opengl.GL11.*;
 
@@ -92,40 +95,32 @@ public class CLRunner implements Runnable {
     }
 
     private void init() throws Exception {
-        final Drawable drawable = sharedGlData.get();
         CL.create();
         List<CLPlatform> platforms = CLPlatform.getPlatforms();
-        // Find devices with GL sharing support
-        final Filter<CLDevice> glSharingFilter = new Filter<CLDevice>() {
-            public boolean accept(final CLDevice device) {
-                final CLDeviceCapabilities caps = CLCapabilities.getDeviceCapabilities(device);
-                return caps.CL_KHR_gl_sharing;
-            }
-        };
         for(CLPlatform p : platforms) {
-            List<CLDevice> devices = p.getDevices(CL_DEVICE_TYPE_GPU, glSharingFilter);
-            if(devices.isEmpty())
+            List<CLDevice> devices = p.getDevices(CL_DEVICE_TYPE_ALL);
+            if(devices == null)
                 continue;
             CLDevice device = devices.get(0);
             System.out.println(device.getInfoString(CL_DEVICE_NAME));
             System.out.println(device.getInfoBoolean(CL_DEVICE_AVAILABLE));
         }
         platform = platforms.get(platforms.size() - 1);
-        devices = platform.getDevices(CL_DEVICE_TYPE_GPU);
+        devices = platform.getDevices(CL_DEVICE_TYPE_ALL);
         if(devices == null || devices.isEmpty()) {
             throw new Exception("Sorry, but Recur can't run because you don't have a graphics card that supports OpenCL.");
         }
         IntBuffer err = BufferUtils.createIntBuffer(1);
-        context = CLContext.create(platform, devices, null, drawable, err);
+        context = CLContext.create(platform, devices, err);
         Util.checkCLError(err.get(0));
         getClInfo();
 
         iterateQueue = clCreateCommandQueue(context, devices.get(0), CL_QUEUE_PROFILING_ENABLE, null);
         convertQueue = clCreateCommandQueue(context, devices.get(0), CL_QUEUE_PROFILING_ENABLE, null);
         randomQueue = clCreateCommandQueue(context, devices.get(0), CL_QUEUE_PROFILING_ENABLE, null);
-        glFinish();
-        pboMem[0] = CL10GL.clCreateFromGLBuffer(context, CL_MEM_WRITE_ONLY, imageData.getBuffer(0), null);
-        pboMem[1] = CL10GL.clCreateFromGLBuffer(context, CL_MEM_WRITE_ONLY, imageData.getBuffer(1), null);
+
+        pboMem[0] = clCreateBuffer(context, CL_MEM_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, BufferUtils.createFloatBuffer(parameters.pixelNum() * 4), null);
+        pboMem[1] = clCreateBuffer(context, CL_MEM_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, BufferUtils.createFloatBuffer(parameters.pixelNum() * 4), null);
 
         rMatrix = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, BufferUtils.createFloatBuffer(2), null);
         mPositions = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, BufferUtils.createIntBuffer(parameters.pixelNum() * 2), null);
@@ -158,8 +153,6 @@ public class CLRunner implements Runnable {
         setNoiseStdev();
         calculateBlurMatrices();
         calculateGaussianLookup();
-        //parameters.setDebugMatrix(getMatrices());
-        sharedGlData.release();
     }
 
     public void run() {
@@ -169,7 +162,6 @@ public class CLRunner implements Runnable {
             init();
         } catch (Exception e) {
             sharedGlData.finished = true;
-            sharedGlData.release();
             JOptionPane.showMessageDialog(new JFrame(), e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
             return;
@@ -179,18 +171,10 @@ public class CLRunner implements Runnable {
         {
             status = flipBuffers();
             frames++;
-            long timeUsed = System.currentTimeMillis() - startTime;
-            if (timeUsed >= 1000) {
-                //System.out.println(frames + " frames rendered in " + timeUsed / 1000f + " seconds = "
-                //        + (frames / (timeUsed / 1000f)));
-                parameterUpdate.clInfo.fps = (frames / (timeUsed / 1000f));
-                parameterUpdate.clInfo.elapsedTime += timeUsed;
-                parameterUpdate.clInfo.update = true;
-                startTime = System.currentTimeMillis();
-                frames = 0;
-            }
-            if(parameterUpdate.getUpdate()) {
-                changeParameters();
+            if(frames >= parameterUpdate.arguments.framesUntilScreenshot) {
+                screenshot(frames - parameterUpdate.arguments.framesUntilScreenshot);
+                if(frames >= parameterUpdate.arguments.framesUntilScreenshot + parameterUpdate.arguments.framesDuringScreenshot)
+                    break;
             }
         }
         dispose();
@@ -202,18 +186,13 @@ public class CLRunner implements Runnable {
         clEnqueueNDRangeKernel(iterateQueue, blurKernel, 1, null, kernelPixelWorkSize, null, null, null);
         clEnqueueNDRangeKernel(iterateQueue, unsharpKernel, 1, null, kernelPixelWorkSize, null, null, null);
         clFinish(iterateQueue);
-        try{
-            sharedGlData.clAcquire();
-        } catch (Exception e) {
-            return false;
-        }
-        CL10GL.clEnqueueAcquireGLObjects(iterateQueue, pboMem[imageData.getWorkingFlip()], null, null);
-        clEnqueueCopyBuffer(iterateQueue, floatImage, pboMem[imageData.getWorkingFlip()], 0, 0, 4*4*kernelPixelWorkSize.get(0), null, null);
-        CL10GL.clEnqueueReleaseGLObjects(iterateQueue, pboMem[imageData.getWorkingFlip()], null, null);
+        //CL10GL.clEnqueueAcquireGLObjects(iterateQueue, pboMem[imageData.getWorkingFlip()], null, null);
+        clEnqueueCopyBuffer(iterateQueue, floatImage, pboMem[imageData.getWorkingFlip()], 0, 0, 4 * 4 * kernelPixelWorkSize.get(0), null, null);
+        //CL10GL.clEnqueueReleaseGLObjects(iterateQueue, pboMem[imageData.getWorkingFlip()], null, null);
         clFinish(iterateQueue);
-        sharedGlData.release();
 
         imageData.flipBuffers();
+        imageData.readFrame();
 
         if(parameters.noiseOn) {
             clEnqueueNDRangeKernel(randomQueue, randomKernel, 1, null, kernelRandomWorkSize, null, null, null);
@@ -480,5 +459,28 @@ public class CLRunner implements Runnable {
     	}
     	randomDataLocal.rewind();
         Util.checkCLError(clEnqueueWriteBuffer(iterateQueue, randomData, 1, 0, randomDataLocal, null, null));
+    }
+
+    private void screenshot(int shotNum) {
+        FloatBuffer data = BufferUtils.createFloatBuffer(parameters.pixelNum() * 4);
+        clEnqueueReadBuffer(iterateQueue, floatImage, 1, 0, data, null, null);
+        clFinish(iterateQueue);
+        BufferedImage image = new BufferedImage(parameters.width, parameters.height, BufferedImage.TYPE_INT_RGB);
+        int bpp = 4;
+        for(int x = 0; x < parameters.width; x++) {
+            for(int y = 0; y < parameters.height; y++) {
+                int i = (x + (parameters.width * y)) * bpp;
+                int r = (int) (255.0f * Math.min(Math.max(data.get(i + 0), 0), 1));
+                int g = (int) (255.0f * Math.min(Math.max(data.get(i + 1), 0), 1));
+                int b = (int) (255.0f * Math.min(Math.max(data.get(i + 2), 0), 1));
+                image.setRGB(x, parameters.height - (y + 1), (0xFF << 24) | (r << 16) | (g << 8) | b);
+            }
+        }
+        try {
+            String filePath = System.getProperty("user.home");
+            File imageFile = new File(filePath + "\\recur" + String.format("%02d", shotNum) + ".png");
+            imageFile.delete();
+            ImageIO.write(image, "PNG", imageFile);
+        } catch (IOException e) { e.printStackTrace(); }
     }
 }

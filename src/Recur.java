@@ -79,6 +79,7 @@ public class Recur {
         public class Arguments {
             boolean takeScreenshot=false;
             int framesUntilScreenshot;
+            int framesDuringScreenshot;
         }
         public Arguments arguments;
 
@@ -109,6 +110,15 @@ public class Recur {
             try {
                 String data = args[0];
                 parameters.deserialize(data);
+                if(args.length > 1) {
+                    arguments.framesUntilScreenshot = Integer.parseInt(args[1]);
+                    arguments.framesDuringScreenshot = Integer.parseInt(args[2]);
+                    arguments.takeScreenshot = true;
+                    if(args.length > 3) {
+                        parameters.width = Integer.parseInt(args[3]);
+                        parameters.height = Integer.parseInt(args[3]);
+                    }
+                }
             } catch (Exception e) {
                 System.err.println("Argument error: " + e.getMessage());
                 System.exit(1);
@@ -152,22 +162,16 @@ public class Recur {
             sharedGlData = new SharedGlData();
             imageData = new ImageData();
 
-            glDrawer = new GLDrawer(imageData, parameterUpdate, sharedGlData);
-            glThread = new Thread(glDrawer);
-            glThread.start();
-
             clRunner = new CLRunner(imageData, parameterUpdate, sharedGlData);
             clThread = new Thread(clRunner);
             clThread.start();
 
-            if(parametersUI == null)
-                parametersUI = new ParametersUI(parameterUpdate, glDrawer.getWidth(), glDrawer.getHeight());
-            while(glThread.isAlive() && clThread.isAlive()) {
-                parametersUI.updateClInfo(parameterUpdate.clInfo);
+            while(clThread.isAlive()) {
+
             }
             try{
                 sharedGlData.finished = true;
-                glThread.join(); clThread.join();
+                clThread.join();
             } catch (Exception e) {
                 e.printStackTrace();
             }

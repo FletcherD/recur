@@ -92,21 +92,21 @@ public class Parameters implements java.io.Serializable
     }
 
     public String serialize() throws Exception {
-        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-        ObjectOutputStream objectStream = new ObjectOutputStream(outStream);
-        objectStream.writeObject(this);
-        String paramString =
+            ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+            ObjectOutputStream objectStream = new ObjectOutputStream(outStream);
+            objectStream.writeObject(this);
+            String paramString =
                 com.sun.org.apache.xerces.internal.impl.dv.util.Base64.encode(outStream.toByteArray());
-        return paramString;
+            return paramString;
     }
 
     public void deserialize(String in) throws Exception {
-        byte[] byteArray =
+            byte[] byteArray =
                 com.sun.org.apache.xerces.internal.impl.dv.util.Base64.decode(in);
-        ByteArrayInputStream inStream = new ByteArrayInputStream(byteArray);
-        ObjectInputStream objectStream = new ObjectInputStream(inStream);
-        Parameters p = (Parameters) objectStream.readObject();
-        partialClone(p);
+            ByteArrayInputStream inStream = new ByteArrayInputStream(byteArray);
+            ObjectInputStream objectStream = new ObjectInputStream(inStream);
+            Parameters p = (Parameters) objectStream.readObject();
+            partialClone(p);
     }
 
     public float[] getBorderColorGamma() {
