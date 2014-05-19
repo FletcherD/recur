@@ -19,6 +19,9 @@
          name="Recur"
          main-class=
            "Recur">
-     </application-desc>
-     <update check="background"/>
+    </application-desc>
+    <update check="background"/>
+	<security>
+		<j2ee-application-client-permissions/>
+	</security>
 </jnlp>        

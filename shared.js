@@ -3,7 +3,6 @@ function makePreview(data) {
     
     previewDiv.style.width = "50%";
     previewDiv.style.float = "left";
-    previewDiv.appendChild(previewHref);
     previewImg = new Image();
     previewImg.src = data.fields.preview_url;
     previewImg.addEventListener('click', function(){
