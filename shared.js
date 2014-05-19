@@ -3,15 +3,13 @@ function makePreview(data) {
     
     previewDiv.style.width = "50%";
     previewDiv.style.float = "left";
-    var previewHref = document.createElement('a');
-    previewHref.href = "#";
     previewDiv.appendChild(previewHref);
     previewImg = new Image();
     previewImg.src = data.fields.preview_url;
     previewImg.addEventListener('click', function(){
         alert(data.fields.parameter_string);
     });
-    previewHref.appendChild(previewImg);
+    previewDiv.appendChild(previewImg);
     
     previewDiv.appendChild(document.createElement('br'));
     date = new Date(data.fields.upload_date);
