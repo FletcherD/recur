@@ -12,7 +12,7 @@
               href="http://java.sun.com/products/autodl/j2se"/>
         <jar href="Recur.jar"
             main="true" />
-        <extension name="lwjgl" href="http://lwjgl.org/webstart/2.9.0/extension.jnlp" />
+        <extension name="lwjgl" href="http://lwjgl.org/webstart/2.9.1/extension.jnlp" />
 		
     </resources>
     <application-desc
